@@ -9,4 +9,3 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE , LPTSTR cmdLine, int cmdSh
 void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 {
 }
-
