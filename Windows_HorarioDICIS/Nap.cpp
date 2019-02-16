@@ -61,14 +61,245 @@ char* Nap::OpenImage(wstring root, int &lenOutput)
 }
 
 //=============================================================
+//					     EXCEL
+//=============================================================
+//-------------------------------------------------------------
+//					FUNCIONES PUBLICAS
+//-------------------------------------------------------------
+
+bool Nap::ExcelFile::Open(wstring fileName) {
+	Com::Boot boot;
+	Excel::ApplicationX Application;
+	Com::Object Range;
+	vector<vector<wstring>> dataAux;
+	try {
+		Application.CreateInstance(L"Excel.Application", true);
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(10, *pbAux);
+		//Abrir el archivo de excel
+		Excel::WorkbookX book = Application.WorkbooksX.Open(fileName);
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(15, *pbAux);
+		Excel::WorksheetX WorkSheets = Application.ActiveSheet;
+		//Obtener cuantas filas y columnas están activas
+		Excel::Range Cells = WorkSheets.get_Cells();
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(20, *pbAux);
+		Excel::Range LastCell = Cells.SpecialCells(Excel::XlCellType::xlCellTypeLastCell);
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(25, *pbAux);
+		long row = LastCell.Row;
+		long cols = LastCell.Column;
+		//Crear el rango del libro
+		wstring cell = this->GetCols(cols) + to_wstring(row);
+		_variant_t first_cell = L"A1";
+		_variant_t last_cell = cell.c_str();
+		//Seleccionar las celdas
+		Excel::Range range = WorkSheets.get_Range(first_cell, last_cell);
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(30, *pbAux);
+		range.Select();
+		//Recorrer los valores y guardar en un vector de vectores
+		long length = range.Count;
+		int moduleStep = length / 50.0;
+		vector<wstring> aux;
+		wstring saux;
+		if (length / 50.0 <= 1) moduleStep = 1;
+		for (long i = 1, j = 0, k = 1; i <= length; i++, j++) {
+			if (i%moduleStep == 0) Nap::Wintempla::ProgressBar::StepIt(*pbAux);
+			_variant_t result = range.get_Item(k + j * cols);
+			result.ChangeType(VT_BSTR);
+			aux.push_back(result.bstrVal);
+			if (i%row == 0) {
+				dataAux.push_back(aux);
+				j = -1;
+				k++;
+				aux.clear();
+			}
+		}
+		//Cerrar el libro
+		book.Close();
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
+	}
+	catch (Com::Exception excep) {
+		Application.Method(L"Quit");
+		return NAP_EXCEL_ERROR_OPEN;
+	}
+	//Limpiar vector para eliminar datos inutiles
+	this->CleanningData(dataAux);
+	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(93, *pbAux);
+	//Convertimos a minúscula el texto
+	Nap::Text::ToLower(dataAux);
+	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(96, *pbAux);
+	//Vaciar datos a la variable local
+	this->data = dataAux;
+	//Se obtiene el horario de los datos en el excel
+	GetHorario(this->data);
+	return NAP_EXCEL_OK;
+}
+
+bool Nap::ExcelFile::SetProgressBar(Win::ProgressBar &pbAux) {
+	this->isProgressBar = true;
+	this->pbAux = &pbAux;
+	return true;
+}
+
+wstring Nap::ExcelFile::GetXML() {
+	return this->GetXML(L"list");
+}
+
+//-------------------------------------------------------------
+//					FUNCIONES PRIVADAS
+//-------------------------------------------------------------
+
+vector<vector<wstring>> Nap::ExcelFile::GetData()
+{
+	return this->data;
+}
+
+wstring Nap::ExcelFile::GetXML(wstring name) {
+	if (this->data.empty()) return L"";
+	wstring xmlString;
+	if (this->data.empty()) return L"";
+	Sys::Xml xml;
+	this->listView.ExportToXml(false, xml);
+	xml.name = name;
+	xml.GetXmlText(xmlString);
+	return xmlString;
+}
+
+bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
+	if (preHorario.empty()) return false;
+	int positionToCut = -1, sizePreHorario = preHorario[0].size();
+	wstring headers[] = { L"clave", L"áreadelauda", L"areadelauda", L"unidaddeaprendizaje", L"horas/sem", L"hrs/sem",
+			L"requisitos", L"grupo", L"lun", L"lunes", L"mar", L"martes", L"mie", L"miércoles", L"mié", L"miercoles",
+			L"jue", L"jueves", L"vie", L"viernes", L"sab", L"sabado", L"sáb", L"sábado", L"aula", L"salón", L"salon", L"profesor" };
+
+	//Buúqueda de las cabeceras
+	for (int i = 0; i < sizePreHorario; i++) {
+		bool thereIsHeader;
+		for (int j = 0; j < preHorario.size(); j++) {
+			wstring aux = preHorario[j][0];
+			Nap::Text::ReplaceAll(aux, L"\n", L"");
+			Nap::Text::ReplaceAll(aux, L" ", L"");
+			aux = Nap::Text::ToLower(aux);
+			thereIsHeader = false;
+			for (wstring header : headers) {
+				if (header == aux) {
+					thereIsHeader = true;
+					break;
+				}
+			}
+			if (thereIsHeader) break;
+		}
+		if (thereIsHeader) break;
+		for (int j = 0; j < preHorario.size(); j++) {
+			preHorario[j].erase(preHorario[j].begin());
+		}
+
+	}
+	sizePreHorario = preHorario[0].size();
+	//Análisis de las columnas
+	for (int k = 0; k < preHorario.size(); k++) {
+		wstring aux = preHorario[k][0];
+		Nap::Text::ReplaceAll(aux, L"\n", L"");
+		Nap::Text::ReplaceAll(aux, L" ", L"");
+		aux = Nap::Text::ToLower(aux);
+		bool thereIsHeader = false;
+		for (wstring header : headers) {
+			if (header == aux) {
+				thereIsHeader = true;
+				break;
+			}
+		}
+		if (thereIsHeader) continue;
+		int i;
+		for (i = 0; i < preHorario.size(); i++) {
+			wstring auxP = preHorario[i][0];
+			Nap::Text::ReplaceAll(auxP, L"\n", L"");
+			Nap::Text::ReplaceAll(auxP, L" ", L"");
+			auxP = Nap::Text::ToLower(auxP);
+			if (auxP == aux) break;
+		}
+		preHorario.erase(preHorario.begin() + i);
+		k--;
+	}
+	//Quitar renglones con área de la uda vacía
+	for (int i = 0; i < preHorario.size(); i++) {
+		wstring aux = preHorario[i][0];
+		Nap::Text::ReplaceAll(aux, L"\n", L"");
+		Nap::Text::ReplaceAll(aux, L" ", L"");
+		aux = Nap::Text::ToLower(aux);
+		bool isIn = false;
+		if (aux == L"áreadelauda" || aux == L"areadelauda" || aux == L"clave") {
+			isIn = true;
+			for (int j = i + 1; j < preHorario[i].size(); j++) {
+				wstring auxX = preHorario[i][j];
+				Nap::Text::ReplaceAll(auxX, L"\n", L"");
+				Nap::Text::ReplaceAll(auxX, L" ", L"");
+				if (auxX == L"") {
+					for (int k = 0; k < preHorario.size(); k++) {
+						preHorario[k].erase(preHorario[k].begin() + j);
+					}
+					j--;
+				}
+			}
+		}
+		if (isIn) break;
+	}
+	//Dejamos el texto con estilo de capitalización
+	Nap::Text::Capitalize(preHorario);
+	//Columna de la clave en mayúscula
+	for (int i = 0; i < preHorario.size(); i++) {
+		if (preHorario[i][0] == L"Clave") {
+			Nap::Text::ToUpper(preHorario[i]);
+			break;
+		}
+	}
+	return true;
+}
+
+wstring Nap::ExcelFile::GetCols(long cols) {
+	wstring cell;
+	wstring abecedario = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	while (cols > 0) {
+		cell += abecedario[cols % 26 - 1];
+		cols /= 26;
+	}
+	reverse(cell.begin(), cell.end());
+	return cell;
+}
+
+void Nap::ExcelFile::CleanningData(vector<vector<wstring>> &data) {
+	if (data.empty()) return;
+	size_t raws = data[0].size();
+	for (size_t i = 0, k = 0; i < data.size(); i++) {
+		for (size_t j = 0; j < raws; j++) {
+			if (data[i][j] == L"") k++;
+		}
+		if (k == raws) {
+			data.erase(data.begin() + i);
+			i--;
+		}
+		k = 0;
+	}
+	for (size_t i = 0, k = 0; i < data[0].size(); i++) {
+		for (size_t j = 0; j < data.size(); j++) {
+			if (data[j][i] == L"") k++;
+		}
+		if (k == data.size()) {
+			for (size_t j = 0; j < data.size(); j++) {
+				data[j].erase(data[j].begin() + i);
+			}
+			i--;
+		}
+		k = 0;
+	}
+}
+
+//=============================================================
 //					     EmailSMTP
 //=============================================================
 //-------------------------------------------------------------
 //					FUNCIONES PUBLICAS
 //-------------------------------------------------------------
 
-bool Nap::Email::SMTP::SendFileGoogle(wstring path)
-{
+bool Nap::Email::SMTP::SendFileGoogle(wstring path) {
 	if (this->user.empty() || this->password.empty() || path.empty()) return false;
 	this->path = path;
 	try {
@@ -607,6 +838,21 @@ void Nap::Text::Capitalize(wstring &input)
 	input = Nap::Text::Join(text, L' ');
 }
 
+void Nap::Text::Capitalize(vector<wstring> &input)
+{
+	for (int i = 0; i < input.size(); i++) {
+		Nap::Text::Capitalize(input[i]);
+	}
+}
+
+void Nap::Text::Capitalize(vector<vector<wstring>> &input)
+{
+	for (int i = 0; i < input.size(); i++) {
+		Nap::Text::Capitalize(input[i]);
+
+	}
+}
+
 wstring Nap::Text::ToLower(wstring input)
 {
 	wstring accentLower = L"áéíóúñ";
@@ -632,6 +878,18 @@ wchar_t Nap::Text::ToLower(wchar_t input)
 	return input;
 }
 
+void Nap::Text::ToLower(vector<wstring> &input) {
+	for (int i = 0; i < input.size(); i++) {
+		input[i] = Nap::Text::ToLower(input[i]);
+	}
+}
+
+void Nap::Text::ToLower(vector<vector<wstring>> &input) {
+	for (int i = 0; i < input.size(); i++) {
+		Nap::Text::ToLower(input[i]);
+	}
+}
+
 wstring Nap::Text::ToUpper(wstring input)
 {
 	wstring accentLower = L"áéíóúñ";
@@ -642,6 +900,31 @@ wstring Nap::Text::ToUpper(wstring input)
 			if (input[i] == accentLower[j])
 				input[i] = accentUpper[j];
 	return input;
+}
+
+wchar_t Nap::Text::ToUpper(wchar_t input)
+{
+	wstring accentLower = L"abcdefghijklmnopqrstuvwxyzáéíóúñ";
+	wstring accentUpper = L"ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÑ";
+	for (int i = 0; i < accentLower.length(); i++) {
+		if (accentLower[i] == input) {
+			input = accentUpper[i];
+			break;
+		}
+	}
+	return input;
+}
+
+void Nap::Text::ToUpper(vector<wstring> &input) {
+	for (int i = 0; i < input.size(); i++) {
+		input[i] = Nap::Text::ToUpper(input[i]);
+	}
+}
+
+void Nap::Text::ToUpper(vector<vector<wstring>> &input) {
+	for (int i = 0; i < input.size(); i++) {
+		Nap::Text::ToUpper(input[i]);
+	}
 }
 
 wstring Nap::Text::Extract(wstring input, wstring leftX, wstring rightX)

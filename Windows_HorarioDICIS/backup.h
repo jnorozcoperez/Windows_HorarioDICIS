@@ -9,7 +9,6 @@ class Windows_HorarioDICIS: public Win::Dialog, public Mt::IThread
 public:
 	Windows_HorarioDICIS()
 	{
-		isExcel = false;
 		//______________Funciones de actualización
 		win_sparkle_set_appcast_url("https://yivootr0pfmu5k7zrytncw-on.drv.tw/Server/Update.xml");
 		win_sparkle_set_app_build_version(L"1.0.0.0");
@@ -26,8 +25,6 @@ public:
 		win_sparkle_cleanup();
 	}
 	wstring root;
-	bool isExcel;
-	wstring xmlFinal;
 	//____________Multithreading
 	Mt::ThreadObject threadObject;
 	DWORD ThreadFunc(Mt::BoolTs& cancel, Mt::DecimalTs& progress, Mt::BoolTs& resetTime);
@@ -48,8 +45,7 @@ protected:
 	{
 		dlgTemplate.cx=Sys::Convert::CentimetersToDlgUnitX(27.26267);
 		dlgTemplate.cy=Sys::Convert::CentimetersToDlgUnitY(7.34483);
-		dlgTemplate.dwExtendedStyle = WS_EX_TRANSPARENT;
-		dlgTemplate.style = WS_CLIPCHILDREN | DS_CENTER | DS_MODALFRAME;
+		dlgTemplate.style = WS_CAPTION | WS_POPUP | WS_SYSMENU | WS_VISIBLE | DS_CENTER | DS_MODALFRAME;
 	}
 	//_________________________________________________
 	void InitializeGui()
@@ -81,17 +77,7 @@ protected:
 	void customControlOpen_Click(Win::Event& e);
 	void customControlBtUpload_Click(Win::Event& e);
 	void customControlBtExcel_Click(Win::Event& e);
-	void Window_MouseMove(Win::Event& e);
-	void Window_NcActivate(Win::Event& e);
-	void Window_NcCalcSize(Win::Event& e);
-	void Window_NcCreate(Win::Event& e);
-	void Window_NcHitTest(Win::Event& e);
-	void Window_NcLButtonDown(Win::Event& e);
-	void Window_NcLButtonUp(Win::Event& e);
-	void Window_NcMouseMove(Win::Event& e);
-	void Window_NcPaint(Win::Event& e);
 	void Window_Open(Win::Event& e);
-	void Window_Paint(Win::Event& e);
 	void Window_User(Win::Event& e);
 	//_________________________________________________
 	bool EventHandler(Win::Event& e)

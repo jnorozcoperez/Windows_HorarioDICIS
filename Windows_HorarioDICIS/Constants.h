@@ -31,3 +31,5 @@ constexpr auto NAP_PDF_PAGESIZE_A10 = "A10"; //26 x 37 mm - 1.0 x 1.5 in
 constexpr auto NAP_PDF_PAGESIZE_LETTER = "Letter"; //216 x 279 mm - 8.5 x 11.0 in
 constexpr auto NAP_PDF_PAGESIZE_LEGAL = "Legal"; //216 x 356 mm - 8.5 x 14.0 in
 constexpr auto NAP_PDF_PAGESIZE_TABLOID = "Tabloid"; //279 x 432 mm - 11.0 x 17.0 in
+constexpr auto NAP_EXCEL_ERROR_OPEN = false; //Error al abrir un archivo
+constexpr auto NAP_EXCEL_OK = true; //Todo bien en ecel

@@ -48,6 +48,18 @@
     <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Excel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BtOpen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BtUpload.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BtLvExcel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -63,6 +75,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Nap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BtOpen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BtUpload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BtLvExcel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -205,6 +229,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="xy_graph.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="LogoUG.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="LogoUGMO.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

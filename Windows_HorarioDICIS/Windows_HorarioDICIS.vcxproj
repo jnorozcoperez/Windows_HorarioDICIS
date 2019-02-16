@@ -153,7 +153,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BtLvExcel.h" />
+    <ClInclude Include="BtOpen.h" />
+    <ClInclude Include="BtUpload.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Excel.h" />
     <ClInclude Include="Nap.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -166,6 +170,10 @@
     <ClInclude Include="wkhtmltox\pdf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BtLvExcel.cpp" />
+    <ClCompile Include="BtOpen.cpp" />
+    <ClCompile Include="BtUpload.cpp" />
+    <ClCompile Include="Excel.cpp" />
     <ClCompile Include="Nap.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -181,6 +189,8 @@
     <ResourceCompile Include="Windows_HorarioDICIS.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="LogoUG.bmp" />
+    <Image Include="LogoUGMO.bmp" />
     <Image Include="Windows_HorarioDICIS.ico" />
     <Image Include="about.ico" />
     <Image Include="add.ico" />

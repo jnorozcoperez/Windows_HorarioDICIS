@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iomanip>
 #include "Constants.h"
+#include "Excel.h"
 #include "wkhtmltox/pdf.h"
 #pragma comment(lib, "wkhtmltox.lib")
 
@@ -20,6 +21,30 @@ public:
 	static wstring Execute(wstring cmd);
 	//Execute a windows command and return it in string
 	static string Execute(string cmd);
+	class ExcelFile {
+	public:
+		ExcelFile() {
+			this->isProgressBar = false;
+		}
+		~ExcelFile() {}
+		//Open an exel file
+		bool Open(wstring fileName);
+		//Set a progress bar in case you want to use it
+		bool SetProgressBar(Win::ProgressBar &pbAux);
+		//Obtener el codigo xml del archivo excel
+		wstring GetXML();
+		//Obtener todos los datos del excel en vector
+		vector<vector<wstring>> GetData();
+	private:
+		bool isProgressBar;
+		Win::ListView listView;
+		Win::ProgressBar *pbAux;
+		wstring GetCols(long cols);
+		vector<vector<wstring>> data;
+		wstring GetXML(wstring name);
+		bool GetHorario(vector<vector<wstring>> &preHorario);
+		void CleanningData(vector<vector<wstring>> &data);
+	};
 	class Email {
 	public:
 		class SMTP {
@@ -134,12 +159,26 @@ public:
 		static wstring Extract(wstring input, wstring left, wstring right);
 		//Convert all text in upper case
 		static wstring ToUpper(wstring input);
+		//Convert all text in upper case
+		static wchar_t ToUpper(wchar_t input);
+		//Convert all vector text in lower casr
+		static void ToUpper(vector<wstring> &input);
+		//Convert all vector<vector> in lower case
+		static void ToUpper(vector<vector<wstring>> &input);
 		//Convert all text in lower case
 		static wstring ToLower(wstring input);
+		//Convert all vector text in lower casr
+		static void ToLower(vector<wstring> &input);
+		//Convert all vector<vector> in lower case
+		static void ToLower(vector<vector<wstring>> &input);
 		//Convert all text in lower case
 		static wchar_t ToLower(wchar_t input);
 		//Capitalize all text, for example input = L"hola ángel cómo estás" output = L"Hola Ángel Cómo Estás"
 		static void Capitalize(wstring &input);
+		//Capitalize all vector text
+		static void Capitalize(vector<wstring> &input);
+		//Capitalize all vector<vector> text
+		static void Capitalize(vector<vector<wstring>> &input);
 		//This gonna joint a vector<wstring> based in a character, for example c = { L"Hello", L"World"}, AfterJoin = L"Hello World"
 		static wstring Join(vector<wstring> input, wchar_t byWhat);
 	};
