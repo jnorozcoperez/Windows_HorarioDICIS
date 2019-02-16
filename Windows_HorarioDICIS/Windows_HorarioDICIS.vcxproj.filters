@@ -33,6 +33,21 @@
     <ClInclude Include="WintemplaWin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="winsparkle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winsparkle-version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wkhtmltox\pdf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WintemplaWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -194,5 +212,19 @@
     <Manifest Include="Windows_HorarioDICIS.exe.manifest">
       <Filter>Resource Files</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WinSparkle.dll" />
+    <None Include="wkhtmltox\dllbegin.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="wkhtmltox\dllend.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="wkhtmltox.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="WinSparkle.lib" />
+    <Library Include="wkhtmltox.lib" />
   </ItemGroup>
 </Project>

@@ -153,14 +153,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Nap.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="winsparkle-version.h" />
+    <ClInclude Include="winsparkle.h" />
     <ClInclude Include="Wintempla.h" />
     <ClInclude Include="WintemplaWin.h" />
     <ClInclude Include="Windows_HorarioDICIS.h" />
+    <ClInclude Include="wkhtmltox\pdf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Nap.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -223,6 +229,16 @@
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Windows_HorarioDICIS.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WinSparkle.dll" />
+    <None Include="wkhtmltox.dll" />
+    <None Include="wkhtmltox\dllbegin.inc" />
+    <None Include="wkhtmltox\dllend.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="WinSparkle.lib" />
+    <Library Include="wkhtmltox.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

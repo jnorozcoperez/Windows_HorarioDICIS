@@ -13,7 +13,7 @@
 //_________________________________________ OpenGL
 //#define WIN_OPENGL_SUPPORT
 //_________________________________________ Sockets & Cryptography
-//#define WIN_SOCKETS_SUPPORT
+#define WIN_SOCKETS_SUPPORT
 //_________________________________________ DirectX
 //#define WIN_DIRECTX
 //_________________________________________ Cryptography
@@ -32,6 +32,14 @@
 #include "Wintempla.h"
 #include "WintemplaWin.h"
 using namespace std;
+
+//UPDATES
+#include "winsparkle.h"
+//PDF
+#include "wkhtmltox/pdf.h"
+#pragma comment(lib, "wkhtmltox.lib")
+//NAP LIBRARY
+#include "Nap.h"
 
 //#include <list>
 //#include <map> //<hash_map>  <hash_multimap>
