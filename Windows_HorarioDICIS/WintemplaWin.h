@@ -8543,7 +8543,7 @@ public:
 	void Redraw(HWND hWnd, CG::Region& regionWindow);
 	bool NcLButtonDown(HWND hWnd, Win::Event& e, CG::Region& regionWindow);
 	bool NcLButtonUp(HWND hWnd, Win::Event& e, CG::Region& regionWindow);
-	void NcMouseMove(HWND hWnd, Win::Event& e, CG::Region& regionWindow);
+	bool NcMouseMove(HWND hWnd, Win::Event& e, CG::Region& regionWindow);
 	void GetRect(RECT& out_rect);
 	COLORREF color;
 	bool drawBorder;

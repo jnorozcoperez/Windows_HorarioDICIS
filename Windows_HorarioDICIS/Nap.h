@@ -13,7 +13,7 @@ class Nap
 public:
 	Nap();
 	~Nap();
-	//Get the current directory path of the program, in most cases is C:\\ProgramFiles\\FolderProgramName or if your working on VS is the current debug folder
+	//Get the current directory path of the program, in most cases is C:\ProgramFiles\FolderProgramName or if your working on VS is the current debug folder
 	static wstring GetCurrentPathWork();
 	//Open an image and it will stored in a pointer, to read it
 	static char* OpenImage(wstring root, int &lenOutput);
@@ -31,10 +31,13 @@ public:
 		bool Open(wstring fileName);
 		//Set a progress bar in case you want to use it
 		bool SetProgressBar(Win::ProgressBar &pbAux);
-		//Obtener el codigo xml del archivo excel
+		//Get XML code based in excel file
 		wstring GetXML();
-		//Obtener todos los datos del excel en vector
+		//Get data in vector<vector> wstring
 		vector<vector<wstring>> GetData();
+		//Get listView of data
+		void GetListView(Win::ListView& listAux);
+
 	private:
 		bool isProgressBar;
 		Win::ListView listView;
@@ -55,34 +58,39 @@ public:
 				this->password.clear();
 				this->user = user;
 				this->password = password;
+				percentageToAdvance = 0;
 			}
 			~SMTP() {
 				Disconnect();
 			}
-			//Send email with an attachement file using a google account
+			//Send email with an attachement file opened in local PC using a google account
 			bool SendFileGoogle(wstring path);
 			//Send email with only text message usign a google account
 			bool SendEmailGoogle(wstring message);
-			//Set a progress bar in case you want to use it
-			bool SetProgressBar(Win::ProgressBar &pbActual);
+			//Send email with an attachement file store in program passing extension example "pdf" using a google account
+			bool SendLocalFileGoogle(wstring file, string extensionFile);
+			//Set a progress bar in case you want to use it, and the percentage that going to advance
+			bool SetProgressBar(Win::ProgressBar &pbActual, int percentageToAdvance);
 		private:
 			bool Connect(wchar_t *servername, int port);
 			bool Disconnect();
+			bool SendEmail(int typeEmail);
 			bool VerifyProtocol(string &protocolSMTP, int code, wstring messageError);
 			bool PreparingDataAttached(string &body);
 			bool SendAttachmentFile(string &body);
-			//bool GetBase64Vector(wstring wpath, vector<string> &base64Vector);
-			//string TimeHeader();
 		protected:
-			string GetBody(string &emailFrom, string &emailTo, bool isFile);
+			string GetBody(string &emailFrom, string &emailTo, int &typeEmail);
 			Sys::SecuritySupportProvider ssp;
 			Sys::Socket socket;
 			wstring path;
 			wstring user;
 			wstring password;
 			wstring message;
+			wstring file;
+			string extensionFile;
 			bool isProgressBar;
 			Win::ProgressBar *pbAux;
+			int percentageToAdvance;
 		};
 	};
 	class FileDlg {
@@ -190,6 +198,8 @@ public:
 		static bool Cut(wstring existingFile, wstring newFile);
 		//Remember use GetLastErrorWindows() to get the error if exist
 		static bool CreateFolder(wstring pathNewFolder);
+		//Save a data stored in a wstring but in UTF-8
+		static bool Save(wstring &data, wstring name, bool isUTF8);
 		//Save a data stored in a vector<wstring> Line per Line, with a jump line between item and item vector but in UTF-8
 		static bool Save(vector<wstring> &data, wstring name, bool isUTF8);
 		//Save a data stored in a vector<wstring> Line per Line, with a jump line between item and item vector
@@ -459,7 +469,7 @@ public:
 	public:
 		PDF() {
 			this->settingGPDF = wkhtmltopdf_create_global_settings();
-			SetNormalSetting(NAP_PDF_PAGESIZE_LETTER, NAP_PDF_ORIENTATION_LANDSCAPE, NAP_PDF_COLORMODE_COLOR);
+			SetNormalSetting(NAP_PDF_PAPERSIZE_LETTER, NAP_PDF_ORIENTATION_LANDSCAPE, NAP_PDF_COLORMODE_COLOR);
 			this->settingOPDF = wkhtmltopdf_create_object_settings();
 			wkhtmltopdf_set_object_setting(settingOPDF, "load.blockLocalFileAccess", "false");
 			this->convertPDF = nullptr;

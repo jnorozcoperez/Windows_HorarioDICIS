@@ -40317,7 +40317,7 @@ void TitleBarButton::NcPaint(CG::Gdi& gdi)
 	}
 }
 
-void TitleBarButton::NcMouseMove(HWND hWnd, Win::Event& e, CG::Region& regionWindow)
+bool TitleBarButton::NcMouseMove(HWND hWnd, Win::Event& e, CG::Region& regionWindow)
 {
 	RECT rc;
 	::GetWindowRect(hWnd, &rc);
@@ -40339,8 +40339,8 @@ void TitleBarButton::NcMouseMove(HWND hWnd, Win::Event& e, CG::Region& regionWin
 		_isPressed = false;
 		Redraw(hWnd, regionWindow);
 	}
+	return _isMouseOver;
 }
-
 bool TitleBarButton::NcLButtonDown(HWND hWnd, Win::Event& e, CG::Region& regionWindow)
 {
 	RECT rc;

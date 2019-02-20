@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="BtLvExcel.h" />
     <ClInclude Include="BtOpen.h" />
     <ClInclude Include="BtUpload.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="wkhtmltox\pdf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="BtLvExcel.cpp" />
     <ClCompile Include="BtOpen.cpp" />
     <ClCompile Include="BtUpload.cpp" />
@@ -189,8 +191,18 @@
     <ResourceCompile Include="Windows_HorarioDICIS.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="close.ico" />
+    <Image Include="closed.ico" />
+    <Image Include="closemo.ico" />
     <Image Include="LogoUG.bmp" />
     <Image Include="LogoUGMO.bmp" />
+    <Image Include="minimize.ico" />
+    <Image Include="minimized.ico" />
+    <Image Include="minimizemo.ico" />
+    <Image Include="pdf.ico" />
+    <Image Include="pdfmo.ico" />
+    <Image Include="titleBar.ico" />
+    <Image Include="titleBarMo.ico" />
     <Image Include="Windows_HorarioDICIS.ico" />
     <Image Include="about.ico" />
     <Image Include="add.ico" />

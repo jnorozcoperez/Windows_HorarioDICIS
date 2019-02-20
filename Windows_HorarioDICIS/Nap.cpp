@@ -114,7 +114,7 @@ bool Nap::ExcelFile::Open(wstring fileName) {
 		}
 		//Cerrar el libro
 		book.Close();
-		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(85, *pbAux);
 	}
 	catch (Com::Exception excep) {
 		Application.Method(L"Quit");
@@ -122,10 +122,10 @@ bool Nap::ExcelFile::Open(wstring fileName) {
 	}
 	//Limpiar vector para eliminar datos inutiles
 	this->CleanningData(dataAux);
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(93, *pbAux);
+	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
 	//Convertimos a minúscula el texto
 	Nap::Text::ToLower(dataAux);
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(96, *pbAux);
+	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(95, *pbAux);
 	//Vaciar datos a la variable local
 	this->data = dataAux;
 	//Se obtiene el horario de los datos en el excel
@@ -141,6 +141,20 @@ bool Nap::ExcelFile::SetProgressBar(Win::ProgressBar &pbAux) {
 
 wstring Nap::ExcelFile::GetXML() {
 	return this->GetXML(L"list");
+}
+
+void Nap::ExcelFile::GetListView(Win::ListView& listView) {
+	listView.Delete();
+	size_t k = 0;
+	if (this->data.empty()) return;
+	for (size_t i = 0; i < this->data.size(); i++) {
+		listView.Cols.Add(i, LVCFMT_LEFT, 100, this->data[i][0]);
+		for (size_t j = 1, l = data[i].size() - 1; j < this->data[i].size(); j++, l--) {
+			if (i == 0) listView.Items.Add(i, this->data[i][l]);
+			else listView.Items[j - 1][i].Text = this->data[i][j];
+		}
+	}
+	this->listView = listView;
 }
 
 //-------------------------------------------------------------
@@ -191,7 +205,6 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 		for (int j = 0; j < preHorario.size(); j++) {
 			preHorario[j].erase(preHorario[j].begin());
 		}
-
 	}
 	sizePreHorario = preHorario[0].size();
 	//Análisis de las columnas
@@ -242,12 +255,31 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 		}
 		if (isIn) break;
 	}
+	//Quitamos el primer espacio del texto en caso de haber
+	for (vector<wstring> &auxI : preHorario) {
+		for (wstring &auxJ : auxI) {
+			if (auxJ.empty()) continue;
+			if (auxJ[0] == L' ') {
+				if (auxJ.size() <= 1) {
+					auxJ = L"";
+					continue;
+				}
+				if (auxJ[0] != L' ') continue;
+				wstring aux;
+				for (int i = 1; i < auxJ.size(); i++) {
+					aux += auxJ[i];
+				}
+				auxJ = aux;
+			}
+		}
+	}
 	//Dejamos el texto con estilo de capitalización
 	Nap::Text::Capitalize(preHorario);
 	//Columna de la clave en mayúscula
 	for (int i = 0; i < preHorario.size(); i++) {
 		if (preHorario[i][0] == L"Clave") {
 			Nap::Text::ToUpper(preHorario[i]);
+			Nap::Text::Capitalize(preHorario[i][0]);
 			break;
 		}
 	}
@@ -299,91 +331,26 @@ void Nap::ExcelFile::CleanningData(vector<vector<wstring>> &data) {
 //					FUNCIONES PUBLICAS
 //-------------------------------------------------------------
 
+bool Nap::Email::SMTP::SendLocalFileGoogle(wstring file, string extensionFile) {
+	this->file = file;
+	this->extensionFile = extensionFile;
+	return this->SendEmail(NAP_EMAIL_LOCALFILE);
+}
+
 bool Nap::Email::SMTP::SendFileGoogle(wstring path) {
-	if (this->user.empty() || this->password.empty() || path.empty()) return false;
 	this->path = path;
-	try {
-		if (Connect(L"smtp.gmail.com", 465) == false) {
-			Disconnect();
-			return false;
-		}
-		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(10, *pbAux);
-	}
-	catch (wstring e) {
-		Disconnect();
-		return false;
-	}
-	//__________________________________________________MAIL FROM
-	string protocolSMTP = "MAIL FROM: <" + Nap::Convert::ToString(this->user) + ">\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 250, L"EMAIL FROM") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(30, *pbAux);
-	//____________________________________________________________ SendRCPTTo
-	protocolSMTP = "RCPT TO: <" + Nap::Convert::ToString(this->user) + ">\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 250, L"RCPT TO") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(50, *pbAux);
-	//____________________________________________________________ SendDATA
-	protocolSMTP = "DATA\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 354, L"DATA") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(70, *pbAux);
-	//____________________________________________________________ SendBody
-	string body = GetBody(Nap::Convert::ToString(this->user), Nap::Convert::ToString(this->user), true);
-	//____________________________________________________________ SendDATAEnd
-	body += "\r\n.\r\n";
-	if (this->VerifyProtocol(body, 250, L"DATA CONTENT") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
-	//____________________________________________________________ SendQuit
-	protocolSMTP = "Quit\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 221, L"QUIT") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(100, *pbAux);
-	//____________________________________________________________ Disconnect
-	Disconnect();
-	return true;
+	return this->SendEmail(NAP_EMAIL_FILE);
 }
 
-bool Nap::Email::SMTP::SendEmailGoogle(wstring path) {
-	if (this->user.empty() || this->password.empty() || path.empty()) return false;
-	this->path = path;
-	try {
-		if (Connect(L"smtp.gmail.com", 465) == false) {
-			Disconnect();
-			return false;
-		}
-		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(10, *pbAux);
-	}
-	catch (wstring e) {
-		Disconnect();
-		return false;
-	}
-	//__________________________________________________MAIL FROM
-	string protocolSMTP = "MAIL FROM: <" + Nap::Convert::ToString(this->user) + ">\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 250, L"EMAIL FROM") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(30, *pbAux);
-	//____________________________________________________________ SendRCPTTo
-	protocolSMTP = "RCPT TO: <" + Nap::Convert::ToString(this->user) + ">\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 250, L"RCPT TO") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(50, *pbAux);
-	//____________________________________________________________ SendDATA
-	protocolSMTP = "DATA\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 354, L"DATA") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(70, *pbAux);
-	//____________________________________________________________ SendBody
-	string body = GetBody(Nap::Convert::ToString(this->user), Nap::Convert::ToString(this->user), false);
-	//____________________________________________________________ SendDATAEnd
-	body += "\r\n.\r\n";
-	if (this->VerifyProtocol(body, 250, L"DATA CONTENT") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
-	//____________________________________________________________ SendQuit
-	protocolSMTP = "Quit\r\n";
-	if (this->VerifyProtocol(protocolSMTP, 221, L"QUIT") == false) return false;
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(100, *pbAux);
-	//____________________________________________________________ Disconnect
-	Disconnect();
-	return true;
+bool Nap::Email::SMTP::SendEmailGoogle(wstring message) {
+	this->message = message;
+	return this->SendEmail(NAP_EMAIL_TEXT);
 }
 
-bool Nap::Email::SMTP::SetProgressBar(Win::ProgressBar &pbAux) {
+bool Nap::Email::SMTP::SetProgressBar(Win::ProgressBar &pbAux, int percentageToAdvance) {
 	this->isProgressBar = true;
 	this->pbAux = &pbAux;
+	this->percentageToAdvance = percentageToAdvance;
 	return true;
 }
 
@@ -391,8 +358,51 @@ bool Nap::Email::SMTP::SetProgressBar(Win::ProgressBar &pbAux) {
 //					FUNCIONES PRIVADAS
 //-------------------------------------------------------------
 
-bool Nap::Email::SMTP::Connect(wchar_t* servername, int port)
-{
+bool Nap::Email::SMTP::SendEmail(int typeEmail) {
+	if (this->user.empty() || this->password.empty()) return false;
+	if (typeEmail == NAP_EMAIL_TEXT && this->message.empty()) return false;
+	if (typeEmail == NAP_EMAIL_FILE && this->path.empty()) return false;
+	if (typeEmail == NAP_EMAIL_LOCALFILE && this->file.empty() || this->extensionFile.empty()) return false;
+	try {
+		//Conectar con el servidor de gmail en el puerto 465
+		if (Connect(L"smtp.gmail.com", 465) == false) {
+			Disconnect();
+			return false;
+		}
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.1 * percentageToAdvance)), *pbAux);
+		//__________________________________________________MAIL FROM
+		string protocolSMTP = "MAIL FROM: <" + Nap::Convert::ToString(this->user) + ">\r\n";
+		if (this->VerifyProtocol(protocolSMTP, 250, L"EMAIL FROM") == false) return false;
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
+		//____________________________________________________________ SendRCPTTo
+		protocolSMTP = "RCPT TO: <" + Nap::Convert::ToString(this->user) + ">\r\n";
+		if (this->VerifyProtocol(protocolSMTP, 250, L"RCPT TO") == false) return false;
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
+		//____________________________________________________________ SendDATA
+		protocolSMTP = "DATA\r\n";
+		if (this->VerifyProtocol(protocolSMTP, 354, L"DATA") == false) return false;
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
+		//____________________________________________________________ SendBody
+		string body = GetBody(Nap::Convert::ToString(this->user), Nap::Convert::ToString(this->user), typeEmail);
+		//____________________________________________________________ SendDATAEnd
+		body += "\r\n.\r\n";
+		if (this->VerifyProtocol(body, 250, L"DATA CONTENT") == false) return false;
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
+		//____________________________________________________________ SendQuit
+		protocolSMTP = "Quit\r\n";
+		if (this->VerifyProtocol(protocolSMTP, 221, L"QUIT") == false) return false;
+		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.1 * percentageToAdvance)), *pbAux);
+		//____________________________________________________________ Disconnect
+		Disconnect();
+	}
+	catch (wstring e) {
+		Disconnect();
+		return false;
+	}
+	return true;
+}
+
+bool Nap::Email::SMTP::Connect(wchar_t* servername, int port) {
 	const DWORD protocol = SP_PROT_TLS1;
 	//______________________________________________________ Create Credentials
 	SECURITY_STATUS status;
@@ -505,7 +515,7 @@ bool Nap::Email::SMTP::SendAttachmentFile(string &body) {
 //					FUNCIONES PROTEGIDAS
 //-------------------------------------------------------------
 
-string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, bool isFile) {
+string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, int &typeEmail) {
 	string body = "";
 	//___________________ SendFrom
 	body += "From: ""UploadUser"" <" + emailFrom + ">\r\n";
@@ -523,7 +533,7 @@ string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, bool isFile
 	//___________________ SendMime
 	body += "MIME-Version: 1.0\r\n";
 	//___________________ SendAttachFile
-	if (isFile) {
+	if (typeEmail == NAP_EMAIL_FILE || typeEmail == NAP_EMAIL_LOCALFILE) {
 		//___________________ SendMultipartMixed
 		body += "Content-Type: multipart/mixed; boundary=""XYZ25678""\r\n";
 		//___________________ SendBodyFrontier
@@ -540,20 +550,18 @@ string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, bool isFile
 		//body += "text/html; charset=""iso-8859-1""\r\n";
 	}
 	//___________________ SendBlankLine Just Attach File
-	if (isFile)
-		body += "\r\n";
+	if (typeEmail == NAP_EMAIL_FILE || typeEmail == NAP_EMAIL_LOCALFILE) body += "\r\n";
 	//___________________ SendBody
 	string message = Nap::Convert::ToString(this->message);
 	body += message + "\r\n";
-	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(50, *pbAux);
 	//___________________ SendAttachFile
-	if (isFile) {
+	if (typeEmail == NAP_EMAIL_FILE || typeEmail == NAP_EMAIL_LOCALFILE) {
 		//___________________ SendBlankLine
 		body += "\r\n";
 		//____________________SendAttachmentFrontier
 		body += "--XYZ25678\r\n";
 		//___________________ SendAttachmentContentType
-		string nameFile = Nap::Convert::ToString(this->path);
+		string nameFile = typeEmail == NAP_EMAIL_FILE ? Nap::Convert::ToString(this->path) : "Default." + extensionFile;
 		string extension;
 		body += "Content-Type: ";
 		if (nameFile.find(".gif") != std::string::npos) {
@@ -573,7 +581,6 @@ string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, bool isFile
 			extension = ".txt";
 		}
 		else if (nameFile.find(".xml") != std::string::npos) {
-			//body += "application/xhtml+xml;";
 			body += "text/xml; charset=ISO-8859-1;";
 			extension = ".xml";
 		}
@@ -588,13 +595,16 @@ string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, bool isFile
 		body += "\r\n";
 		//___________________ SendAttachment
 		this->PreparingDataAttached(body);
-		vector<string> fileBase64;
-		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(60, *pbAux);
-		Nap::File::OpenL64(this->path, fileBase64, true);
-		for (int i = 0; i < (int)fileBase64.size(); i++) {
-			this->PreparingDataAttached(fileBase64[i]);
+		if (typeEmail == NAP_EMAIL_FILE) {
+			vector<string> fileBase64;
+			Nap::File::OpenL64(this->path, fileBase64, true);
+			for (int i = 0; i < (int)fileBase64.size(); i++) {
+				this->PreparingDataAttached(fileBase64[i]);
+			}
 		}
-		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(80, *pbAux);
+		else {
+			this->PreparingDataAttached(Nap::Encrypting::Base64(Nap::Convert::ToUTF8(this->file)));
+		}
 		body = "\r\n";
 		//___________________ SendBlankLine
 		body += "\r\n";
@@ -829,8 +839,8 @@ void Nap::Text::Capitalize(wstring &input)
 	for (size_t i = 0; i < text.size(); i++) {
 		wstring word = Nap::Text::ToUpper(text[i]);
 		wstring aux;
-		aux += text[i][0];
-		for (int j = 0; j < text[i].size(); j++) {
+		aux += word[0];
+		for (int j = 1; j < text[i].size(); j++) {
 			aux += Nap::Text::ToLower(text[i][j]);
 		}
 		text[i] = aux;
@@ -1000,6 +1010,14 @@ bool Nap::File::CreateFolder(wstring pathNewFolder) {
 	if (CreateDirectoryW(L"\\\\srv-mx03\\engineering\\test", NULL) == FALSE) {
 		return false;
 	}
+	return true;
+}
+
+bool Nap::File::Save(wstring &data, wstring name, bool isUTF8) {
+	string dataS = Nap::Convert::ToUTF8(data);
+	ofstream outFile(name, ofstream::out);
+	outFile << dataS.c_str();
+	outFile.close();
 	return true;
 }
 
@@ -1385,11 +1403,13 @@ bool Nap::Wintempla::DropDownCopyValues(Win::DropDownList &from, Win::DropDownLi
 void Nap::Wintempla::ProgressBar::StepIt(Win::ProgressBar &pbAux)
 {
 	pbAux.StepIt();
+	pbAux.SetText(Nap::Convert::ToWstring(pbAux.GetPosition()) + L"%");
 	pbAux.Update();
 }
 
 void Nap::Wintempla::ProgressBar::SetPosition(int position, Win::ProgressBar &pbAux)
 {
+	pbAux.SetText(Nap::Convert::ToWstring(position) + L"%");
 	pbAux.SetPosition(position);
 	pbAux.Update();
 }
@@ -1789,9 +1809,9 @@ void Nap::XSLT::GenerateXSLT()
 	CComPtr<IStream> pOutStream;
 	VARIANT_BOOL isSuccessful;
 	string xmlName;
-	Sys::Convert::WstringToString(xml, xmlName);
+	Sys::Convert::WstringToUTF8(xml, xmlName);
 	string xsltName;
-	Sys::Convert::WstringToString(xslTemplate, xsltName);
+	Sys::Convert::WstringToUTF8(xslTemplate, xsltName);
 	try {
 		pXml->put_async(false);
 		vResult = pXml->loadXML(_bstr_t(xmlName.c_str()), &isSuccessful);

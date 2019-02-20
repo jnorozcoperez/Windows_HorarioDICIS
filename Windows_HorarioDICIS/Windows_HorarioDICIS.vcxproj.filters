@@ -60,6 +60,9 @@
     <ClInclude Include="BtLvExcel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AboutDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -87,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BtLvExcel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -235,6 +241,36 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="LogoUGMO.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="close.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="closed.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="closemo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="minimize.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="minimized.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="minimizemo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="titleBar.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="titleBarMo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="pdf.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="pdfmo.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
