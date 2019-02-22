@@ -52,8 +52,8 @@ void BtLvExcel::Window_Open(Win::Event& e)
 {
 	backgroundC.SetFromCOLORREF(RGB(48, 58, 60));
 	this->SetMouseCursor(NAP_MOUSE_IS_NOTOVER);
-	halfY = this->Height * 0.5;
-	halfX = this->Width * 0.5;
+	halfY = float(this->Height * 0.5);
+	halfX = float(this->Width * 0.5);
 	isOpen = false;
 	isActive = true;
 	m = 1;
@@ -70,12 +70,12 @@ void BtLvExcel::Window_Paint(Win::Event& e)
 	//Draw arrow in the custom control
 	Gdiplus::Pen pen(penC, 5.0);
 	if (isOpen) {
-		gdi.Plus.DrawLine(&pen, halfX + (0.17 * this->Width), halfY + (0.04 * this->Height), halfX - (0.17 * this->Width), halfY - m);
-		gdi.Plus.DrawLine(&pen, halfX + (0.17 * this->Width), halfY - (0.04 * this->Height), halfX - (0.17 * this->Width), halfY + m);
+		gdi.Plus.DrawLine(&pen, float(halfX + (0.17 * this->Width)), float(halfY + (0.04 * this->Height)), float(halfX - (0.17 * this->Width)), halfY - m);
+		gdi.Plus.DrawLine(&pen, float(halfX + (0.17 * this->Width)), float(halfY - (0.04 * this->Height)), float(halfX - (0.17 * this->Width)), halfY + m);
 	}
 	else {
-		gdi.Plus.DrawLine(&pen, halfX - (0.17 * this->Width), halfY - (0.04 * this->Height), halfX + (0.17 * this->Width), halfY + m);
-		gdi.Plus.DrawLine(&pen, halfX - (0.17 * this->Width), halfY + (0.04 * this->Height), halfX + (0.17 * this->Width), halfY - m);
+		gdi.Plus.DrawLine(&pen, float(halfX - (0.17 * this->Width)), float(halfY - (0.04 * this->Height)), float(halfX + (0.17 * this->Width)), halfY + m);
+		gdi.Plus.DrawLine(&pen, float(halfX - (0.17 * this->Width)), float(halfY + (0.04 * this->Height)), float(halfX + (0.17 * this->Width)), halfY - m);
 	}
 }
 

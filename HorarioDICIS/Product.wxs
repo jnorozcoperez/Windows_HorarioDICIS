@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define versionProgram="1.0.0.0"?><!-- Este cambia en cada versión-->
+<?define UpgradeCode="334270D6-B7F9-418E-8DDF-89632A4CB6A8"?>
+<?define idProgram="A799467E-B5BE-4708-AF9D-FA824DEA3941"?><!-- Este cambia en cada versión-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="$(var.idProgram)" Name="HorarioDICIS" Language="1034" Version="$(var.versionProgram)" Manufacturer="Napoleon" UpgradeCode="$(var.UpgradeCode)" Codepage="1252">
+    <Package InstallerVersion="500" Compressed="yes" Description="Programa para generar publicar los horarios de DICIS" Manufacturer="Napoleon" Languages="1034" SummaryCodepage="1252" InstallPrivileges="elevated" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="Una nueva version de HorarioDICIS ya está instalada. Si aún está seguro de querer instalarla necesita desinstalar primero su versión." />
+    <Media Id="1" Cabinet="HorarioDICIS_cab" EmbedCab="yes" />
+    <Icon Id="HorarioDICIS_ico" SourceFile="$(var.SolutionDir)Release\Windows_HorarioDICIS.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="HorarioDICIS_ico" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.property.ProductName)">
+          <Component Id="HorarioDICIS.exe" DiskId="1" Guid="80F23AB4-EC09-4CCB-94DA-97D7B99E0F8D">
+            <File Id="HorarioDICIS.exe" Name="HorarioDICIS.exe" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe" KeyPath="yes">
+              <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="HorarioDICIS" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
+              <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="HorarioDICIS" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
+            </File>
+          </Component>
+          <Component Id="msvcp140.dll" DiskId="1" Guid="42894880-85D3-4598-942D-A63147D8F387" KeyPath="yes">
+            <File Id="msvcp140.dll" Name="msvcp140.dll" Source="$(var.SolutionDir)Release\msvcp140.dll"/>
+          </Component>
+          <Component Id="msvcp140d.dll" DiskId="1" Guid="8C476F5D-592A-4FAD-8DD2-1C184CA95B04" KeyPath="yes">
+            <File Id="msvcp140d.dll" Name="msvcp140d.dll" Source="$(var.SolutionDir)Release\msvcp140d.dll"/>
+          </Component>
+          <Component Id="ucrtbase.dll" DiskId="1" Guid="D26CFBE8-26B6-44CE-AC93-70719134E14E" KeyPath="yes">
+            <File Id="ucrtbase.dll" Name="ucrtbase.dll" Source="$(var.SolutionDir)Release\ucrtbase.dll"/>
+          </Component>
+          <Component Id="ucrtbased.dll" DiskId="1" Guid="9204C65D-C4AA-48A4-A666-3678CBB0019C" KeyPath="yes">
+            <File Id="ucrtbased.dll" Name="ucrtbased.dll" Source="$(var.SolutionDir)Release\ucrtbased.dll"/>
+          </Component>
+          <Component Id="vcruntime140.dll" DiskId="1" Guid="ED1A752C-FB5A-43B3-924F-6E0D7A6A8781" KeyPath="yes">
+            <File Id="vcruntime140.dll" Name="vcruntime140.dll" Source="$(var.SolutionDir)Release\vcruntime140.dll"/>
+          </Component>
+          <Component Id="vcruntime140d.dll" DiskId="1" Guid="65AE73DA-0463-48C6-B36F-A0B9BC0E5E48" KeyPath="yes">
+            <File Id="vcruntime140d.dll" Name="vcruntime140d.dll" Source="$(var.SolutionDir)Release\vcruntime140d.dll"/>
+          </Component>
+            <Component Id="WinSparkle.dll" DiskId="1" Guid="C88BE141-2486-4772-99C9-D306682B82D2" KeyPath="yes">
+            <File Id="WinSparkle.dll" Name="WinSparkle.dll" Source="$(var.SolutionDir)Release\WinSparkle.dll"/>
+          </Component>
+          <Component Id="wkhtmltox.dll" DiskId="1" Guid="FA9F6F60-1D11-4B56-BAD4-6E837665F209" KeyPath="yes">
+            <File Id="wkhtmltox.dll" Name="wkhtmltox.dll" Source="$(var.SolutionDir)Release\wkhtmltox.dll"/>
+          </Component>
+          <Component Id="HorarioDICIS.ico" DiskId="1" Guid="E594C4E5-3FF6-4560-9DF2-E8AACB12C1AB" KeyPath="yes">
+            <File Id="HorarioDICIS.ico" Name="HorarioDICISV2.ico" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.ico"/>
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" />
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ProgramMenuDir" Name="HorarioDICIS">
+          <Component Id="StartMenuShortcuts" Guid="516A45B6-F3AB-4627-B5BA-83DEAF22360F">
+            <Shortcut Id="UninstallProduct" Name="Uninstall HorarioDICIS" Description="Uninstalls HorarioDICIS" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" WorkingDirectory="HorarioDICIS_Folder"/>
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\HorarioDICIS" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+    <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+      <ComponentRef Id="HorarioDICIS.exe"/>
+      <ComponentRef Id="msvcp140.dll"/>
+      <ComponentRef Id="msvcp140d.dll"/>
+      <ComponentRef Id="ucrtbase.dll"/>
+      <ComponentRef Id="ucrtbased.dll"/>
+      <ComponentRef Id="vcruntime140.dll"/>
+      <ComponentRef Id="vcruntime140d.dll"/>
+      <ComponentRef Id="WinSparkle.dll"/>
+      <ComponentRef Id="wkhtmltox.dll"/>
+      <ComponentRef Id="HorarioDICIS.ico"/>
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+    <WixVariable Id="WixUIDialogBmp" Value="Background.png"/>
+    <WixVariable Id="WixUIBannerBmp" Value="Banner.png"/>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+      <Publish Dialog="WelcomeDlg"
+            Control="Next"
+            Event="NewDialog"
+            Value="InstallDirDlg"
+            Order="2">1</Publish>
+      <Publish Dialog="InstallDirDlg"
+            Control="Back"
+            Event="NewDialog"
+            Value="WelcomeDlg"
+            Order="2">1</Publish>
+    </UI>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Gracias por instalar la version $(var.versionProgram) de HorarioDICIS."/>
+
+    <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe"/>
+    <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe"/>
+  </Product>
+</Wix>

@@ -4,6 +4,7 @@
 #include "BtLvExcel.h"
 #include "BtUpload.h"
 constexpr auto WORK_ID = 100;
+constexpr auto WORK_ID_2 = 101;
 class Windows_HorarioDICIS: public Win::Window, public Mt::IThread
 {
 public:
@@ -33,10 +34,8 @@ public:
 	wstring root;
 	bool isExcel;
 	wstring xmlFinal;
-	wstring xmlPDF;
-	//____________Create PDF
-	bool isPDFReady;
-	Nap::PDF pdfCreator;
+	//____________Publish XML
+
 	//____________Excel File
 	Nap::ExcelFile excelFile;
 	void Adjust(Sys::Xml &xmlAux, wstring listOld, wstring listNew);
@@ -85,7 +84,7 @@ protected:
 		this->Text = L"Sincronizador de Horarios";
 		tbxPath.CreateX(WS_EX_CLIENTEDGE, NULL, WS_CHILD | WS_DISABLED | WS_TABSTOP | WS_VISIBLE | ES_AUTOHSCROLL | ES_LEFT | ES_WINNORMALCASE, 0.93133, 3.85233, 9.18633, 0.55033, hWnd, 1000);
 		imgLogoUG.CreateX(WS_EX_TRANSPARENT, NULL, WS_CHILD | WS_DISABLED | WS_VISIBLE, 0.93133, 0.12700, 9.14400, 2.89983, hWnd, 1001);
-		lbUpload.CreateX(NULL, L"Subir", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_WINNORMAL, 10.05417, 6.56167, 1.05833, 0.55033, hWnd, 1002);
+		lbUpload.CreateX(NULL, L"Publicar", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_WINNORMAL, 9.84250, 6.56167, 1.56633, 0.78317, hWnd, 1002);
 		pbUpload.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE, 0.93133, 5.48217, 8.25500, 0.55033, hWnd, 1003);
 		lvExcel.CreateX(NULL, NULL, WS_CHILD | WS_HSCROLL | WS_TABSTOP | WS_VSCROLL | LVS_REPORT, 13.84300, 0.63500, 13.27150, 6.56167, hWnd, 1004);
 		toolbExcel.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE | CCS_NORESIZE | CCS_NOPARENTALIGN | CCS_ADJUSTABLE | CCS_NODIVIDER | TBSTYLE_FLAT | TBSTYLE_TOOLTIPS, 25.97150, 0.00000, 1.14300, 0.61383, hWnd, 1005);
@@ -121,7 +120,7 @@ protected:
 	void Window_Open(Win::Event& e);
 	void Window_Paint(Win::Event& e);
 	void Window_User(Win::Event& e);
-	void Cmd_Print(Win::Event& e);
+	void Cmd_Delete(Win::Event& e);
 	//_________________________________________________
 	bool EventHandler(Win::Event& e)
 	{
@@ -129,7 +128,7 @@ protected:
 		if (customControlOpen.IsEvent(e, WIN_CLICK)) {customControlOpen_Click(e); return true;}
 		if (customControlBtUpload.IsEvent(e, WIN_CLICK)) {customControlBtUpload_Click(e); return true;}
 		if (customControlBtExcel.IsEvent(e, WIN_CLICK)) {customControlBtExcel_Click(e); return true;}
-		if (this->IsEvent(e, IDM_PRINT)) {Cmd_Print(e); return true;}
+		if (this->IsEvent(e, IDM_DELETE)) {Cmd_Delete(e); return true;}
 		return false;
 	}
 };

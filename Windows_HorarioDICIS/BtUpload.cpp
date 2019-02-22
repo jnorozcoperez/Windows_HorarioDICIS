@@ -61,32 +61,32 @@ void BtUpload::Window_Paint(Win::Event& e)
 	gdi.Plus.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
 	//Background
 	Gdiplus::SolidBrush brush(colorBackground);
-	gdi.Plus.FillRectangle(&brush, -1, -1, this->Width * 1.0 + 1, this->Height * 1.0 + 1);
+	gdi.Plus.FillRectangle(&brush, -1, -1, int(this->Width * 1.0 + 1), int(this->Height * 1.0 + 1));
 	//
 	brush.SetColor(colorButton);
-	Gdiplus::REAL radio = (Width)*0.22;
+	Gdiplus::REAL radio = float((Width)*0.22);
 	Gdiplus::REAL conv = 1.0;
 	Gdiplus::REAL diameter = radio * 2;
-	Gdiplus::REAL center = this->Width / 2.0 - diameter;
-	Gdiplus::REAL heigthRec = (this->Height)*0.3;
+	Gdiplus::REAL center = float(this->Width / 2.0 - diameter);
+	Gdiplus::REAL heigthRec = float((this->Height)*0.3);
 	//1er
 	gdi.Plus.FillEllipse(&brush, 0.0, (this->Height - diameter), diameter, diameter);
 	//2do
-	gdi.Plus.FillEllipse(&brush, (this->Width - diameter)*0.1864, 0.0, diameter, diameter);
+	gdi.Plus.FillEllipse(&brush, float((this->Width - diameter)*0.1864), float(0.0), diameter, diameter);
 	//3er
-	gdi.Plus.FillEllipse(&brush, (this->Width - diameter)*0.6127, (this->Height - diameter)*0.4, diameter, diameter);
+	gdi.Plus.FillEllipse(&brush, float((this->Width - diameter)*0.6127), float((this->Height - diameter)*0.4), diameter, diameter);
 	//4to
 	gdi.Plus.FillEllipse(&brush, this->Width - diameter - 1, (this->Height - diameter), diameter, diameter);
 	//Rectangle
-	gdi.Plus.FillRectangle(&brush, radio, this->Height - heigthRec, this->Width * 0.5 + 2, heigthRec);
+	gdi.Plus.FillRectangle(&brush, radio, this->Height - heigthRec, float(this->Width * 0.5 + 2), heigthRec);
 	//Arrow
 	brush.SetColor(Gdiplus::Color(255, 255, 255, 255));
-	gdi.Plus.FillRectangle(&brush, this->Width * 0.45f, this->Height * 0.5, this->Width * 0.1, this->Height * 0.3);
+	gdi.Plus.FillRectangle(&brush, float(this->Width * 0.45f), float(this->Height * 0.5), float(this->Width * 0.1), float(this->Height * 0.3));
 	Gdiplus::Point point[] =
 	{
-		Gdiplus::Point(this->Width * 0.35f, this->Height * 0.6),
-		Gdiplus::Point(this->Width * 0.5f, this->Height * 0.4),
-		Gdiplus::Point(this->Width * 0.65f, this->Height * 0.6)
+		Gdiplus::Point(int(this->Width * 0.35f), int(this->Height * 0.6)),
+		Gdiplus::Point(int(this->Width * 0.5f), int(this->Height * 0.4)),
+		Gdiplus::Point(int(this->Width * 0.65f), int(this->Height * 0.6))
 	};
 	gdi.Plus.FillPolygon(&brush, point, 3);
 }

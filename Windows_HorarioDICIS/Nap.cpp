@@ -96,7 +96,7 @@ bool Nap::ExcelFile::Open(wstring fileName) {
 		range.Select();
 		//Recorrer los valores y guardar en un vector de vectores
 		long length = range.Count;
-		int moduleStep = length / 50.0;
+		int moduleStep = int(length / 50.0);
 		vector<wstring> aux;
 		wstring saux;
 		if (length / 50.0 <= 1) moduleStep = 1;
@@ -187,7 +187,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 	//Buúqueda de las cabeceras
 	for (int i = 0; i < sizePreHorario; i++) {
 		bool thereIsHeader;
-		for (int j = 0; j < preHorario.size(); j++) {
+		for (size_t j = 0; j < preHorario.size(); j++) {
 			wstring aux = preHorario[j][0];
 			Nap::Text::ReplaceAll(aux, L"\n", L"");
 			Nap::Text::ReplaceAll(aux, L" ", L"");
@@ -202,13 +202,13 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 			if (thereIsHeader) break;
 		}
 		if (thereIsHeader) break;
-		for (int j = 0; j < preHorario.size(); j++) {
+		for (size_t j = 0; j < preHorario.size(); j++) {
 			preHorario[j].erase(preHorario[j].begin());
 		}
 	}
 	sizePreHorario = preHorario[0].size();
 	//Análisis de las columnas
-	for (int k = 0; k < preHorario.size(); k++) {
+	for (size_t k = 0; k < preHorario.size(); k++) {
 		wstring aux = preHorario[k][0];
 		Nap::Text::ReplaceAll(aux, L"\n", L"");
 		Nap::Text::ReplaceAll(aux, L" ", L"");
@@ -221,7 +221,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 			}
 		}
 		if (thereIsHeader) continue;
-		int i;
+		size_t i;
 		for (i = 0; i < preHorario.size(); i++) {
 			wstring auxP = preHorario[i][0];
 			Nap::Text::ReplaceAll(auxP, L"\n", L"");
@@ -233,7 +233,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 		k--;
 	}
 	//Quitar renglones con área de la uda vacía
-	for (int i = 0; i < preHorario.size(); i++) {
+	for (size_t i = 0; i < preHorario.size(); i++) {
 		wstring aux = preHorario[i][0];
 		Nap::Text::ReplaceAll(aux, L"\n", L"");
 		Nap::Text::ReplaceAll(aux, L" ", L"");
@@ -241,12 +241,12 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 		bool isIn = false;
 		if (aux == L"áreadelauda" || aux == L"areadelauda" || aux == L"clave") {
 			isIn = true;
-			for (int j = i + 1; j < preHorario[i].size(); j++) {
+			for (size_t j = i + 1; j < preHorario[i].size(); j++) {
 				wstring auxX = preHorario[i][j];
 				Nap::Text::ReplaceAll(auxX, L"\n", L"");
 				Nap::Text::ReplaceAll(auxX, L" ", L"");
 				if (auxX == L"") {
-					for (int k = 0; k < preHorario.size(); k++) {
+					for (size_t k = 0; k < preHorario.size(); k++) {
 						preHorario[k].erase(preHorario[k].begin() + j);
 					}
 					j--;
@@ -266,7 +266,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 				}
 				if (auxJ[0] != L' ') continue;
 				wstring aux;
-				for (int i = 1; i < auxJ.size(); i++) {
+				for (size_t i = 1; i < auxJ.size(); i++) {
 					aux += auxJ[i];
 				}
 				auxJ = aux;
@@ -276,7 +276,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 	//Dejamos el texto con estilo de capitalización
 	Nap::Text::Capitalize(preHorario);
 	//Columna de la clave en mayúscula
-	for (int i = 0; i < preHorario.size(); i++) {
+	for (size_t i = 0; i < preHorario.size(); i++) {
 		if (preHorario[i][0] == L"Clave") {
 			Nap::Text::ToUpper(preHorario[i]);
 			Nap::Text::Capitalize(preHorario[i][0]);
@@ -826,7 +826,7 @@ int Nap::Screen::GetHalfScreenSizeY() {
 wstring Nap::Text::Join(vector<wstring> input, wchar_t byWhat) {
 	if (input.empty()) return L"";
 	wstring temp;
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		temp += input[i];
 		if (i < input.size() - 1) temp += byWhat;
 	}
@@ -840,7 +840,7 @@ void Nap::Text::Capitalize(wstring &input)
 		wstring word = Nap::Text::ToUpper(text[i]);
 		wstring aux;
 		aux += word[0];
-		for (int j = 1; j < text[i].size(); j++) {
+		for (size_t j = 1; j < text[i].size(); j++) {
 			aux += Nap::Text::ToLower(text[i][j]);
 		}
 		text[i] = aux;
@@ -850,14 +850,14 @@ void Nap::Text::Capitalize(wstring &input)
 
 void Nap::Text::Capitalize(vector<wstring> &input)
 {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		Nap::Text::Capitalize(input[i]);
 	}
 }
 
 void Nap::Text::Capitalize(vector<vector<wstring>> &input)
 {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		Nap::Text::Capitalize(input[i]);
 
 	}
@@ -879,7 +879,7 @@ wchar_t Nap::Text::ToLower(wchar_t input)
 {
 	wstring accentLower = L"abcdefghijklmnopqrstuvwxyzáéíóúñ";
 	wstring accentUpper = L"ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÑ";
-	for (int i = 0; i < accentUpper.length(); i++) {
+	for (size_t i = 0; i < accentUpper.length(); i++) {
 		if (accentUpper[i] == input) {
 			input = accentLower[i];
 			break;
@@ -889,13 +889,13 @@ wchar_t Nap::Text::ToLower(wchar_t input)
 }
 
 void Nap::Text::ToLower(vector<wstring> &input) {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		input[i] = Nap::Text::ToLower(input[i]);
 	}
 }
 
 void Nap::Text::ToLower(vector<vector<wstring>> &input) {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		Nap::Text::ToLower(input[i]);
 	}
 }
@@ -916,7 +916,7 @@ wchar_t Nap::Text::ToUpper(wchar_t input)
 {
 	wstring accentLower = L"abcdefghijklmnopqrstuvwxyzáéíóúñ";
 	wstring accentUpper = L"ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÑ";
-	for (int i = 0; i < accentLower.length(); i++) {
+	for (size_t i = 0; i < accentLower.length(); i++) {
 		if (accentLower[i] == input) {
 			input = accentUpper[i];
 			break;
@@ -926,13 +926,13 @@ wchar_t Nap::Text::ToUpper(wchar_t input)
 }
 
 void Nap::Text::ToUpper(vector<wstring> &input) {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		input[i] = Nap::Text::ToUpper(input[i]);
 	}
 }
 
 void Nap::Text::ToUpper(vector<vector<wstring>> &input) {
-	for (int i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		Nap::Text::ToUpper(input[i]);
 	}
 }
@@ -1023,7 +1023,7 @@ bool Nap::File::Save(wstring &data, wstring name, bool isUTF8) {
 
 bool Nap::File::Save(vector<wstring> &data, wstring name, bool isUTF8) {
 	vector<string> dataS;
-	for (int i = 0; i < data.size(); i++) {
+	for (size_t i = 0; i < data.size(); i++) {
 		dataS.push_back(Nap::Convert::ToUTF8(data[i]));
 	}
 	ofstream outFile(name, ofstream::out);
@@ -1211,7 +1211,7 @@ bool Nap::Time::IsDayOff(Sys::Time t)
 	wstring dayOff[] = { L"Ene 1", L"May 1", L"Sep 16", L"Dic 25" };
 	wstring dateS;
 	dateS = monthMX[t.wMonth - 1] + L" " + Nap::Convert::ToWstring(t.wDay);
-	for (int i = 0; i < dayOff->size(); i++) if (dateS == dayOff[i]) return true;
+	for (size_t i = 0; i < dayOff->size(); i++) if (dateS == dayOff[i]) return true;
 	vector<vector<wstring>> dayOffIrregular;
 	vector<wstring> aux;
 	//Vaciar días de asueto
@@ -1420,7 +1420,7 @@ vector<wstring> Nap::Wintempla::ProgressBar::OpenL(wstring root, int percentage,
 	wifstream fs(root);
 	int countFile = Nap::Convert::ToInt(Nap::Text::Extract(Nap::Execute(L"find /v /c \"\" \"" + root + L"\""), L": ", L"\n"));
 	wstring line;
-	int moduleStep = countFile / double(percentage), i = 0;
+	int moduleStep = int(countFile / double(percentage)), i = 0;
 	if (moduleStep <= 1) moduleStep = 1;
 	while (getline(fs, line)) {
 		if (i % moduleStep == 0 && i > moduleStep) {
@@ -1479,7 +1479,7 @@ bool Nap::Wintempla::ListView::Fill(vector<vector<wstring>> &data, Win::ListView
 		for (size_t i = 0; i < data[0].size(); i++)
 			lvItems.Cols.Add(i, LVCFMT_LEFT, 100, data[0][i]);
 	}
-	else if (lvItems.GetColumnCount() < data[0].size()) return false;
+	else if (lvItems.GetColumnCount() < int(data[0].size())) return false;
 	lvItems.SetRedraw(false);
 	lvItems.DeleteAllItems();
 	for (size_t i = isHeader ? 1 : 0; i < data.size(); i++) {
@@ -1628,7 +1628,7 @@ bool Nap::Wintempla::DropDownList::Fill(Win::DropDownList &ddList) {
 	if (this->selectedIndex < 0) return false;
 	ddList.DeleteAllItems();
 	size_t countItem = item.size();
-	for (int i = 0; i < countItem; i++) {
+	for (size_t i = 0; i < countItem; i++) {
 		ddList.Items.Add(this->item[i]);
 	}
 	ddList.SetSelectedIndex(this->selectedIndex);
@@ -1688,7 +1688,7 @@ vector<wstring> Nap::Wintempla::DropDownList::GetAllItems() {
 
 bool Nap::Wintempla::DropDownList::SetSelectedIndex(int index) {
 	if (index < 0) return false;
-	if (index > item.size() - 1) return false;
+	if (index > int(item.size() - 1)) return false;
 	this->selectedIndex = index;
 	return true;
 }
@@ -1820,6 +1820,7 @@ void Nap::XSLT::GenerateXSLT()
 		vResult = pXslt->loadXML(_bstr_t(xsltName.c_str()), &isSuccessful);
 	}
 	catch (_com_error &e) {
+		e.Description();
 		exit(-1);
 	}
 	try {
@@ -1827,6 +1828,7 @@ void Nap::XSLT::GenerateXSLT()
 		pTemplate->createProcessor(&pProcessor);
 	}
 	catch (_com_error &e) {
+		e.Description();
 		exit(-1);
 	}
 	HRESULT __fr = CreateStreamOnHGlobal(NULL, TRUE, &pOutStream);
@@ -1919,7 +1921,6 @@ wstring Nap::Correct::Double(wstring input, int NAP_CV_DOUBLE)
 {
 	wstring decimalAccepted = L"0123456789.";
 	wstring temp;
-	int a, b;
 	int countDot = 0;
 	switch (NAP_CV_DOUBLE)
 	{
@@ -1927,7 +1928,7 @@ wstring Nap::Correct::Double(wstring input, int NAP_CV_DOUBLE)
 		countDot = 0;
 		for (size_t i = 0; i < input.length(); i++) {
 			if (input[i] == L'.' && countDot > 0) continue;
-			for (int j = 0; j < decimalAccepted.length(); j++) {
+			for (size_t j = 0; j < decimalAccepted.length(); j++) {
 				if (input[i] == decimalAccepted[j]) {
 					temp += input[i];
 					break;
@@ -1939,7 +1940,7 @@ wstring Nap::Correct::Double(wstring input, int NAP_CV_DOUBLE)
 	case NAP_CV_DOUBLE_SIMBOL:
 		countDot = 0;
 		for (size_t i = 0; i < input.length(); i++) {
-			for (int j = 0; j < decimalAccepted.length(); j++) {
+			for (size_t j = 0; j < decimalAccepted.length(); j++) {
 				if (input[i] == decimalAccepted[j]) {
 					temp += input[i];
 					break;
@@ -2139,7 +2140,7 @@ const char* Nap::Convert::ToChar(wstring input) {
 //-------------------------------------------------------------
 
 wstring Nap::Encrypting::Cesar(wstring input, int id) {
-	for (int i = 0; i < input.length(); i++) {
+	for (size_t i = 0; i < input.length(); i++) {
 		input[i] = input[i] + id + 30;
 		id--;
 	}
@@ -2195,12 +2196,12 @@ string Nap::Encrypting::Base64(string input, size_t len) {
 	char *table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	int lengthAux = 0, i = 0;
 	string output, aux;
-	while (i < len) {
+	while (i < int(len)) {
 		aux = "";
 		lengthAux = 0;
 		for (int j = 0; j < 3; j++) {
 			aux += input[i];
-			if (i < len) {
+			if (i < int(len)) {
 				i++;
 				lengthAux++;
 			}
@@ -2215,12 +2216,12 @@ string Nap::Encrypting::Base64(const char* input, size_t len) {
 	char *table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	int lengthAux = 0, i = 0;
 	string output, aux;
-	while (i < len) {
+	while (i < int(len)) {
 		aux = "";
 		lengthAux = 0;
 		for (int j = 0; j < 3; j++) {
 			aux += input[i];
-			if (i < len) {
+			if (i < int(len)) {
 				i++;
 				lengthAux++;
 			}
@@ -2238,12 +2239,12 @@ vector<string> Nap::Encrypting::Base64L(const char* input, size_t len) {
 	int lengthAux = 0, i = 0, push = 0;
 	bool itWasPush = true;
 	string outputS, aux;
-	while (i < len) {
+	while (i < int(len)) {
 		aux = "";
 		lengthAux = 0;
 		for (int j = 0; j < 3; j++) {
 			aux += input[i];
-			if (i < len) {
+			if (i < int(len)) {
 				i++;
 				lengthAux++;
 			}
@@ -2294,7 +2295,7 @@ void Nap::Encrypting::Encode64(const char* input, string& output, char *table) {
 //-------------------------------------------------------------
 
 wstring Nap::Decrypting::Cesar(wstring input, int id) {
-	for (int i = 0; i < input.length(); i++) {
+	for (size_t i = 0; i < input.length(); i++) {
 		input[i] = input[i] - id - 30;
 		id--;
 	}
@@ -2325,7 +2326,7 @@ wstring Nap::Decrypting::Base64(wstring input) {
 			}
 		}
 		if (lengthAux) {
-			for (int j = 0; j < aux.length();j++) {
+			for (size_t j = 0; j < aux.length();j++) {
 				for (int k = 0; k < lengthTable;k++) {
 					if (aux[j] == table[k]) {
 						aux[j] = k;
@@ -2363,7 +2364,7 @@ string Nap::Decrypting::Base64(string input) {
 			}
 		}
 		if (lengthAux) {
-			for (int j = 0; j < aux.length(); j++) {
+			for (size_t j = 0; j < aux.length(); j++) {
 				for (int k = 0; k < lengthTable; k++) {
 					if (aux[j] == table[k]) {
 						aux[j] = k;
@@ -2504,18 +2505,18 @@ void Nap::Design::AutoCenter::Element(Win::Button &btAux) {
 
 void Nap::Design::AutoSizeWGbox::SetX(Win::Button &btAux) {
 	if (!btAux.IsVisible()) return;
-	btAux.SetWidth(sizeX - 20);
+	btAux.SetWidth(int(sizeX - 20));
 }
 
 void Nap::Design::AutoSizeWGbox::SetY(Win::Button &btAux) {
 	if (!btAux.IsVisible()) return;
-	btAux.SetHeight(sizeY - 50);
+	btAux.SetHeight(int(sizeY - 50));
 }
 
 void Nap::Design::AutoSizeWGbox::SetGbox(Win::Button &btAux) {
 	if (!btAux.IsVisible()) return;
-	btAux.SetWidth(sizeX - 40);
-	btAux.SetHeight(sizeY - 70);
+	btAux.SetWidth(int(sizeX - 40));
+	btAux.SetHeight(int(sizeY - 70));
 	sizeX = btAux.GetWidth();
 	sizeY = btAux.GetHeight();
 }
@@ -2533,7 +2534,7 @@ void Nap::Design::AutoPositionWGbox::SetGbox(Win::Button &btAux)
 {
 	if (!btAux.IsVisible()) return;
 	Nap::Design::AutoCenter autoCenter;
-	autoCenter.SetReferenceSize(sizeX, sizeY);
+	autoCenter.SetReferenceSize(int(sizeX), int(sizeY));
 	autoCenter.Element(btAux);
 	sizeX = btAux.GetWidth();
 	sizeY = btAux.GetHeight();
@@ -2572,49 +2573,49 @@ void Nap::Design::AutoPositionWGbox::SetX(Win::Button &btAux)
 void Nap::Design::AutoPositionWGbox::SetY(Win::Textbox &tbxAux, Win::Label &lbAux)
 {
 	if (!tbxAux.IsVisible()) return;
-	tbxAux.SetPositionY(currentPositionY);
-	lbAux.SetPositionY(currentPositionY);
+	tbxAux.SetPositionY(int(currentPositionY));
+	lbAux.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);
 }
 
 void Nap::Design::AutoPositionWGbox::SetY(Win::Textbox &tbxAux, Win::Label &lbAux1, Win::Label &lbAux2)
 {
 	if (!tbxAux.IsVisible()) return;
-	tbxAux.SetPositionY(currentPositionY);
-	lbAux1.SetPositionY(currentPositionY);
-	lbAux2.SetPositionY(currentPositionY);
+	tbxAux.SetPositionY(int(currentPositionY));
+	lbAux1.SetPositionY(int(currentPositionY));
+	lbAux2.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);;
 }
 
 void Nap::Design::AutoPositionWGbox::SetY(Win::Button &btAux)
 {
 	if (!btAux.IsVisible()) return;
-	btAux.SetPositionY(currentPositionY);
+	btAux.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);
 }
 
 void Nap::Design::AutoPositionWGbox::SetY(Win::Button &ckButton1, Win::Button &ckButton2, Win::Label &lbAux)
 {
 	if (!ckButton1.IsVisible() || !ckButton2.IsVisible()) return;
-	ckButton1.SetPositionY(currentPositionY);
-	ckButton2.SetPositionY(currentPositionY);
-	lbAux.SetPositionY(currentPositionY);
+	ckButton1.SetPositionY(int(currentPositionY));
+	ckButton2.SetPositionY(int(currentPositionY));
+	lbAux.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);
 }
 
 void Nap::Design::AutoPositionWGbox::SetY(Win::DropDownList &ddListAux, Win::Label &lbAux)
 {
 	if (!ddListAux.IsVisible()) return;
-	ddListAux.SetPositionY(currentPositionY);
-	lbAux.SetPositionY(currentPositionY);
+	ddListAux.SetPositionY(int(currentPositionY));
+	lbAux.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);
 }
 
 void Nap::Design::AutoPositionWGbox::SetY(Win::DateTimeBox &dtboxAux, Win::Label &lbAux)
 {
 	if (!dtboxAux.IsVisible()) return;
-	dtboxAux.SetPositionY(currentPositionY);
-	lbAux.SetPositionY(currentPositionY);
+	dtboxAux.SetPositionY(int(currentPositionY));
+	lbAux.SetPositionY(int(currentPositionY));
 	currentPositionY += (int)(sizeY * constantPositionY);
 }
 

@@ -62,10 +62,10 @@ void BtOpen::Window_Paint(Win::Event& e)
 	//
 	brush.SetColor(Gdiplus::Color::White);
 	Gdiplus::REAL radio = 5;
-	Gdiplus::REAL half = this->Height / 2 - (radio / 2);
-	gdi.Plus.FillEllipse(&brush, this->Width * 0.25 - (radio / 2), half, radio, radio);
-	gdi.Plus.FillEllipse(&brush, this->Width * 0.5 - (radio / 2), half, radio, radio);
-	gdi.Plus.FillEllipse(&brush, this->Width * 0.75 - (radio / 2), half, radio, radio);
+	Gdiplus::REAL half = float(this->Height / 2.0 - (radio / 2.0));
+	gdi.Plus.FillEllipse(&brush, float(this->Width * 0.25 - (radio / 2)), half, radio, radio);
+	gdi.Plus.FillEllipse(&brush, float(this->Width * 0.5 - (radio / 2)), half, radio, radio);
+	gdi.Plus.FillEllipse(&brush, float(this->Width * 0.75 - (radio / 2)), half, radio, radio);
 }
 
 void BtOpen::Window_Size(Win::Event& e)

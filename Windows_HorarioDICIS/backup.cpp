@@ -30,16 +30,16 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	const int pixelsIconSize = Sys::Metrics::GetBestIconSize(iconSizes, 2, Sys::Convert::CentimetersToScreenPixels(0.42333));
 	const int pixelsButtonSize = pixelsIconSize + Sys::Convert::CentimetersToScreenPixels(0.1);
 	toolbExcel.imageList.Create(pixelsIconSize, pixelsIconSize, 2);
-	toolbExcel.imageList.AddIcon(this->hInstance, IDI_PDFMO);
+	toolbExcel.imageList.AddIcon(this->hInstance, IDI_DELETE);
 	toolbExcel.SendMessage(TB_BUTTONSTRUCTSIZE, (WPARAM)(int)sizeof(TBBUTTON), 0); 
 	toolbExcel.SetImageList(toolbExcel.imageList);
 	//_____________________________________
 	tbButton[0].iBitmap=MAKELONG(0, 0); //<< IMAGE INDEX
-	tbButton[0].idCommand=IDM_PRINT;
+	tbButton[0].idCommand=IDM_DELETE;
 	tbButton[0].fsState=TBSTATE_ENABLED; // | TBSTATE_WRAP
 	tbButton[0].fsStyle=BTNS_BUTTON;
 	tbButton[0].dwData=0L; 
-	tbButton[0].iString= (LONG_PTR)L"PDF";
+	tbButton[0].iString= (LONG_PTR)L"Borrar";
 	toolbExcel.SetBitmapSize(pixelsIconSize, pixelsIconSize);
 	toolbExcel.SetButtonSize(pixelsButtonSize, pixelsButtonSize);
 	toolbExcel.AddButtons(tbButton, 1);// << EDIT HERE THE NUMBER OF BUTTONS
@@ -61,15 +61,64 @@ void Windows_HorarioDICIS::customControlOpen_Click(Win::Event& e)
 
 void Windows_HorarioDICIS::customControlBtUpload_Click(Win::Event& e)
 {
-	if (xmlFinal.empty()) return;
-	Nap::Email::SMTP email(L"sch.dicis@gmail.com", L"10071994JnOp_Chicken");
-	pbUpload.SetVisible(true);
-	email.SetProgressBar(pbUpload);
-	if (email.SendFileGoogle(root + L"\\xmlFinal.xml")) {
-		this->MessageBox(L"Email error", L"Error", MB_OK | MB_ICONERROR);
+	//Verificamos si hay un archivo de excel abierto
+	if (!isExcel) {
+		this->MessageBox(L"No se ha abierto un archivo de Excel", L"Error", MB_OK | MB_ICONERROR);
+		return;
 	}
-	this->MessageBox(L"File was uploaded", L"Done", MB_OK | MB_ICONINFORMATION);
+	//________________________ Generación del archivo XML y posterior almacenamiento local
+	//Cursor en modo de espera
+	Win::HourGlassCursor hgc(true);
+	//Se hace visible la progressBar
+	pbUpload.SetVisible(true);
+	//Creación de un objeto de la clase Xml
+	Sys::Xml xmlReporteGastos;
+	//Obtener el XML en base a la listView
+	lvExcel.ExportToXml(true, xmlReporteGastos);
+	//Avanzamos al 10% en la ProgressBar
+	Nap::Wintempla::ProgressBar::SetPosition(20, pbUpload);
+	//Cambiar todos los posibles nombres de las ramas para estandarizar los datos
+	Nap::Correct::XML::DeleteChild(xmlReporteGastos, L"id", L"item");
+	Adjust(xmlReporteGastos, L"Area De La Uda,Área De La Uda", L"AreaDeLaUda");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Unidad De Aprendizaje", L"UnidadDeAprendizaje");
+	Adjust(xmlReporteGastos, L"Horas /sem,Horas /Sem,Horas/sem,Horas/Sem,Hrs / Sem,Hrs /Sem,Hrs /sem,Hrs/ Sem,Hrs/Sem", L"HorasSem");
+	Adjust(xmlReporteGastos, L"Mié,Miércoles,Miercoles", L"Mie");
+	Adjust(xmlReporteGastos, L"Sáb,Sábado,Sabado", L"Sab");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Salón", L"Salon");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Lunes", L"Lun");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Martes", L"Mar");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Jueves", L"Jue");
+	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Viernes", L"Vie");
+	//Avanzamos al 20% en la ProgressBar
+	Nap::Wintempla::ProgressBar::SetPosition(30, pbUpload);
+	//Obtener el texto del XML 
+	xmlReporteGastos.GetXmlText(xmlFinal);
+	//Quitar todos los saltos de línea y tabuladores no admitidos en la app de Android
+	Nap::Text::ReplaceAll(xmlFinal, L"\t", L"");
+	Nap::Text::ReplaceAll(xmlFinal, L"\r", L"");
+	Nap::Text::ReplaceAll(xmlFinal, L"\n", L"");
+	//Avanzamos al 40% en la ProgressBar
+	Nap::Wintempla::ProgressBar::SetPosition(40, pbUpload);
+	//Creación de un objeto de la clase Email::SMTP diseñada para enviar un correo
+	Nap::Email::SMTP email(L"sch.dicis@gmail.com", L"10071994JnOp_Chicken");
+	//Indicamos al objeto que use el progress bar y fijamos un porcentaje de la tarea del 50%
+	email.SetProgressBar(pbUpload, 50);
+	if (email.SendLocalFileGoogle(xmlFinal, "xml") == false) {
+		//Mostrar erro de envío
+		this->MessageBox(L"El archivo no se pudo publicar, verifique los datos e intente de nuevo.", L"Error", MB_OK | MB_ICONERROR);
+		//Desaparecer el ProgressBar reiniciándolo para futuros usos
+		Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
+		//Hacer invisible el ProgressBar
+		pbUpload.SetVisible(false);
+		return;
+	}
+	Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
+	//Mostrar alerta de archivo publicado
+	this->MessageBox(L"El archivo se ha publicado", L"Terminado", MB_OK | MB_ICONINFORMATION);
+	Sleep(500); //Pausar para que se vea que se ha terminado
+	//Desaparecer el ProgressBar reiniciándolo para futuros usos
 	Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
+	//Hacer invisible el ProgressBar
 	pbUpload.SetVisible(false);
 }
 
@@ -104,53 +153,35 @@ DWORD Windows_HorarioDICIS::ThreadFunc(Mt::BoolTs& cancel, Mt::DecimalTs& progre
 	dlg.Clear();
 	dlg.SetFilter(L"Excel Files (*.xlsx)\0*.xlsx\0Excel Files 97-2003 (*.xls)\0*.xls\0\0\0", 0, L"*.*");
 	if (dlg.BeginDialog(hWnd, L"Open File", false) == TRUE) {
+		//Cursor en modo de espera
 		Win::HourGlassCursor hgc(true);
+		//Hacer visible la progressBar
 		pbUpload.SetVisible(true);
-		lvExcel.DeleteAllItems();
+		//Borrar todos los datos de la listView en caso de haber
+		if (lvExcel.GetItemCount() > 0) lvExcel.DeleteAllItems();
+		//Mostrar la ruta en la TextBox
 		tbxPath.SetText(dlg.GetFileName());
 		//________________________ Abrir archivo excel
 		try {
-			//Pasamos el progressBar para que muestre el procentaje
+			//Pasar el progressBar para que muestre el procentaje
 			excelFile.SetProgressBar(pbUpload);
-			//Abrimos el archivo de excel
+			//Abrir el archivo de excel
 			excelFile.Open(dlg.GetFileNameFullPath());
-			//Obtenemos los datos del archivo excel en un vector de vectores
+			//Obtener los datos del archivo excel en un vector de vectores
 			vector<vector<wstring>> data = excelFile.GetData();
-			//Hacemos que los datos obtenidos sean vaciados en una list view
+			//Hacer que los datos obtenidos sean vaciados en una ListView
 			excelFile.GetListView(lvExcel);
 		}
 		catch (Com::Exception excep) {
 			excep.Display(hWnd, L"Excel Viewer");
 		}
 		Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
-		//________________________ Generación del archivo XML y posterior almacenamiento local
-		Sys::Xml xmlReporteGastos;
-		lvExcel.ExportToXml(true, xmlReporteGastos);
-		//Cambiando todos los posibles nombres de las ramas para normalizar los datos
-		Nap::Correct::XML::DeleteChild(xmlReporteGastos, L"id", L"item");
-		Adjust(xmlReporteGastos, L"Area De La Uda,Área De La Uda", L"AreaDeLaUda");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Unidad De Aprendizaje", L"UnidadDeAprendizaje");
-		Adjust(xmlReporteGastos, L"Horas /sem,Horas /Sem,Horas/sem,Horas/Sem,Hrs / Sem,Hrs /Sem,Hrs /sem,Hrs/ Sem,Hrs/Sem", L"HorasSem");
-		Adjust(xmlReporteGastos, L"Mié,Miércoles,Miercoles", L"Mie");
-		Adjust(xmlReporteGastos, L"Sáb,Sábado,Sabado", L"Sab");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Salón", L"Salon");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Lunes", L"Lun");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Martes", L"Mar");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Jueves", L"Jue");
-		Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Viernes", L"Vie");
-		//Obtener el texto del XML 
-		xmlReporteGastos.GetXmlText(xmlFinal);
-		xmlPDF = xmlFinal;
-		//Quitar todos los saltos de línea y tabuladores 
-		Nap::Text::ReplaceAll(xmlFinal, L"\t", L"");
-		Nap::Text::ReplaceAll(xmlFinal, L"\r", L"");
-		Nap::Text::ReplaceAll(xmlFinal, L"\n", L"");
-		//Guardar el XML pero convertido en UTF-8, en la carpeta del programa
-		Nap::File::Save(xmlFinal, root + L"\\xmlFinal.xml", true);
-		//Desaparecemos el ProgressBar y lo reiniciamos para futuros usos
+		Sleep(500); //Pausar para que se vea que se ha terminado
+		//Desaparecer el ProgressBar reiniciándolo para futuros usos
 		Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
+		//Hacer invisible el ProgressBar
 		pbUpload.SetVisible(false);
-		//Fijamos que existe un excel cargado en el programa
+		//Fijar bandera de que existe un excel cargado en el programa
 		isExcel = true;
 	}
 	::PostMessage(hWnd, WM_USER + 1, (WPARAM)0, (LPARAM)WORK_ID);
@@ -448,20 +479,19 @@ void Windows_HorarioDICIS::Adjust(Sys::Xml &xmlAux, wstring listOld, wstring new
 	}
 }
 
-void Windows_HorarioDICIS::Cmd_Print(Win::Event& e)
+void Windows_HorarioDICIS::Cmd_Delete(Win::Event& e)
 {
-	Win::FileDlg dlg;
-	dlg.Clear();
-	dlg.SetFilter(L"PDF (*.pdf)\0*.pdf\0\0", 0, L"pdf");
-	if (dlg.BeginDialog(hWnd, L"Save", true) == TRUE) {
-		Win::HourGlassCursor hgc(true);
-		Nap::XSLT xslt;
-		xslt.SetXMLFromWstring(xmlPDF);
-		xslt.SetXSLTemplateFromFile(root + L"\\xsltemplate.xslt");
-		wstring HTML = xslt.GetXSL();
-		pdfCreator.SetPDFfromHTML(HTML);
-		if (pdfCreator.CreatePDF(dlg.GetFileNameFullPath())) {
-			this->MessageBox(L"Archivo actualmente en uso, favor de cerrarlo o usar otro nombre", L"Error PDF", MB_OK | MB_ICONERROR);
-		}
+	Win::HourGlassCursor hgc(true);
+	LPARAM item_id;
+	if (lvExcel.GetSelectedData(item_id) == false) return;
+	const int selectedCount = lvExcel.GetSelectedCount();
+	if (selectedCount < 0) return;
+	if (this->MessageBox(L"¿Está seguro?", L"Vista Preliminar del Archivo Excel", MB_YESNO | MB_ICONQUESTION) != IDYES)
+		return;
+	int index = -1;
+	for (int i = 0; i < selectedCount; i++) {
+		index = lvExcel.GetNextSelectedIndex(i);
+		if (index < 0) break;
+		lvExcel.DeleteItem(index);
 	}
 }

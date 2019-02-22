@@ -10,8 +10,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE , LPTSTR cmdLine, int cmdSh
 	float propY = float(Nap::Screen::GetScreenSizeY() / 1080.0);
 	app.SetWidth(int(663 * propX));
 	app.SetHeight(int(388 * propY));
-	app.SetPositionX(Nap::Screen::GetHalfScreenSizeX() - (app.Width * 0.5));
-	app.SetPositionY(Nap::Screen::GetHalfScreenSizeY() - (app.Height * 0.5));
+	app.SetPositionX(int(Nap::Screen::GetHalfScreenSizeX() - (app.Width * 0.5)));
+	app.SetPositionY(int(Nap::Screen::GetHalfScreenSizeY() - (app.Height * 0.5)));
 	return app.MessageLoop(IDC_Windows_HorarioDICIS);
 }
 
@@ -49,17 +49,46 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	toolbExcel.ResizeToFit();
 }
 
-void Windows_HorarioDICIS::lbUpload_CtlColorStatic(Win::Event& e)
+void Windows_HorarioDICIS::OpenExcel()
 {
+	Win::FileDlg dlg;
+	dlg.Clear();
+	dlg.SetFilter(L"Excel Files (*.xlsx)\0*.xlsx\0Excel Files 97-2003 (*.xls)\0*.xls\0\0\0", 0, L"*.*");
+	if (dlg.BeginDialog(hWnd, L"Open File", false) == TRUE) {
+		//Cursor en modo de espera
+		Win::HourGlassCursor hgc(true);
+		//Hacer visible la progressBar
+		pbUpload.SetVisible(true);
+		//Borrar todos los datos de la listView en caso de haber
+		if (lvExcel.GetItemCount() > 0) lvExcel.DeleteAllItems();
+		//Mostrar la ruta en la TextBox
+		tbxPath.SetText(dlg.GetFileName());
+		//________________________ Abrir archivo excel
+		try {
+			//Pasar el progressBar para que muestre el procentaje
+			excelFile.SetProgressBar(pbUpload);
+			//Abrir el archivo de excel
+			excelFile.Open(dlg.GetFileNameFullPath());
+			//Obtener los datos del archivo excel en un vector de vectores
+			vector<vector<wstring>> data = excelFile.GetData();
+			//Hacer que los datos obtenidos sean vaciados en una ListView
+			excelFile.GetListView(lvExcel);
+		}
+		catch (Com::Exception excep) {
+			excep.Display(hWnd, L"Excel Viewer");
+		}
+		Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
+		Sleep(500); //Pausar para que se vea que se ha terminado
+		//Desaparecer el ProgressBar reiniciándolo para futuros usos
+		Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
+		//Hacer invisible el ProgressBar
+		pbUpload.SetVisible(false);
+		//Fijar bandera de que existe un excel cargado en el programa
+		isExcel = true;
+	}
 }
 
-void Windows_HorarioDICIS::customControlOpen_Click(Win::Event& e)
-{
-	this->EnableCloseButton(false);
-	threadObject.StartThread(*this);
-}
-
-void Windows_HorarioDICIS::customControlBtUpload_Click(Win::Event& e)
+void Windows_HorarioDICIS::Publish()
 {
 	//Verificamos si hay un archivo de excel abierto
 	if (!isExcel) {
@@ -115,16 +144,32 @@ void Windows_HorarioDICIS::customControlBtUpload_Click(Win::Event& e)
 	Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
 	//Mostrar alerta de archivo publicado
 	this->MessageBox(L"El archivo se ha publicado", L"Terminado", MB_OK | MB_ICONINFORMATION);
-	Sleep(500); //Pausar para que se vea que se ha terminado
 	//Desaparecer el ProgressBar reiniciándolo para futuros usos
 	Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
 	//Hacer invisible el ProgressBar
 	pbUpload.SetVisible(false);
 }
 
+void Windows_HorarioDICIS::lbUpload_CtlColorStatic(Win::Event& e) {}
+
+void Windows_HorarioDICIS::customControlOpen_Click(Win::Event& e)
+{
+	this->triggerButton = TRIGGER_OPENEXCEL;
+	this->EnableCloseButton(false);
+	threadObject.StartThread(*this);
+}
+
+
+void Windows_HorarioDICIS::customControlBtUpload_Click(Win::Event& e)
+{
+	this->triggerButton = TRIGGER_PUBLISH;
+	this->EnableCloseButton(false);
+	threadObject.StartThread(*this);
+}
+
 void Windows_HorarioDICIS::customControlBtExcel_Click(Win::Event& e)
 {
-	float propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	if (isExcel) {
 		if (customControlBtExcel.ChangeDoor()) {
 			this->SetWidth(int(1300 * propX));
@@ -148,42 +193,10 @@ void Windows_HorarioDICIS::Window_User(Win::Event& e)
 	}
 }
 
-DWORD Windows_HorarioDICIS::ThreadFunc(Mt::BoolTs& cancel, Mt::DecimalTs& progress, Mt::BoolTs& resetTime) {
-	Win::FileDlg dlg;
-	dlg.Clear();
-	dlg.SetFilter(L"Excel Files (*.xlsx)\0*.xlsx\0Excel Files 97-2003 (*.xls)\0*.xls\0\0\0", 0, L"*.*");
-	if (dlg.BeginDialog(hWnd, L"Open File", false) == TRUE) {
-		//Cursor en modo de espera
-		Win::HourGlassCursor hgc(true);
-		//Hacer visible la progressBar
-		pbUpload.SetVisible(true);
-		//Borrar todos los datos de la listView en caso de haber
-		if (lvExcel.GetItemCount() > 0) lvExcel.DeleteAllItems();
-		//Mostrar la ruta en la TextBox
-		tbxPath.SetText(dlg.GetFileName());
-		//________________________ Abrir archivo excel
-		try {
-			//Pasar el progressBar para que muestre el procentaje
-			excelFile.SetProgressBar(pbUpload);
-			//Abrir el archivo de excel
-			excelFile.Open(dlg.GetFileNameFullPath());
-			//Obtener los datos del archivo excel en un vector de vectores
-			vector<vector<wstring>> data = excelFile.GetData();
-			//Hacer que los datos obtenidos sean vaciados en una ListView
-			excelFile.GetListView(lvExcel);
-		}
-		catch (Com::Exception excep) {
-			excep.Display(hWnd, L"Excel Viewer");
-		}
-		Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
-		Sleep(500); //Pausar para que se vea que se ha terminado
-		//Desaparecer el ProgressBar reiniciándolo para futuros usos
-		Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
-		//Hacer invisible el ProgressBar
-		pbUpload.SetVisible(false);
-		//Fijar bandera de que existe un excel cargado en el programa
-		isExcel = true;
-	}
+DWORD Windows_HorarioDICIS::ThreadFunc(Mt::BoolTs& cancel, Mt::DecimalTs& progress, Mt::BoolTs& resetTime) 
+{
+	if (this->triggerButton == TRIGGER_OPENEXCEL) this->OpenExcel();
+	else if (this->triggerButton == TRIGGER_PUBLISH) this->Publish();
 	::PostMessage(hWnd, WM_USER + 1, (WPARAM)0, (LPARAM)WORK_ID);
 	return 0;
 }
@@ -229,7 +242,7 @@ void Windows_HorarioDICIS::Window_NcActivate(Win::Event& e)
 
 void Windows_HorarioDICIS::Window_NcCalcSize(Win::Event& e)
 {
-	float propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	if (e.wParam == TRUE) {
 		NCCALCSIZE_PARAMS* calcSize_Params = (NCCALCSIZE_PARAMS*)e.lParam;
 		rectWindow = calcSize_Params->rgrc[0]; // the proposed new window coordinates.
@@ -251,11 +264,11 @@ void Windows_HorarioDICIS::Window_NcCalcSize(Win::Event& e)
 		rect.bottom = rect.top + buttonHeight;
 		buttonClose.NcCalcSize(rect);
 		//____________________________________________ Minimize Button
-		::OffsetRect(&rect, -(buttonWidth + 0 * propX), 0);
+		::OffsetRect(&rect, -(buttonWidth + 0 * int(propX)), 0);
 		buttonMinimize.NcCalcSize(rect);
 		//____________________________________________ Window Icon
 		rect.left = padding;
-		rect.right = (rect.left + buttonWidth) * 1.7;
+		rect.right = long((rect.left + buttonWidth) * 1.7);
 		buttonWindowIcon.NcCalcSize(rect);
 	}
 }
@@ -332,7 +345,7 @@ void Windows_HorarioDICIS::Window_NcPaint(Win::Event& e)
 
 void Windows_HorarioDICIS::Window_Paint(Win::Event& e)
 {
-	float propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	CG::Gdi gdi(hWnd, true, false);
 	CG::Brush brushSolid;
 	gdi.SelectNullPen();
@@ -436,26 +449,26 @@ void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 	{
 		RECT rc;
 		CG::Font font;
-		font.Create(L"sans-serif", titleBarHeight * 0.68, false, false, 0);
+		font.Create(L"sans-serif", int(titleBarHeight * 0.68), false, false, 0);
 		gdiBitmap.Select(font);
 		gdiBitmap.SetTextColor(RGB(255, 255, 255));
 		buttonWindowIcon.GetRect(rc);
 		SIZE size;
 		gdiBitmap.GetTextExtentPoint32W(text, size);
 		gdiBitmap.SetBkMode(true);
-		gdiBitmap.TextOut(rc.right + 10, ((titleBarHeight - size.cy) / 2) * 1.4, text);
+		gdiBitmap.TextOut(rc.right + 10, int(((titleBarHeight - size.cy) / 2) * 1.4), text);
 	}
 	//___________________________________________________ Text
 	RECT rc2;
 	CG::Font fonts;
-	fonts.Create(L"sans-serif", titleBarHeight * 0.68, false, false, 0);
+	fonts.Create(L"sans-serif", int(titleBarHeight * 0.68), false, false, 0);
 	gdiBitmap.Select(fonts);
 	gdiBitmap.SetTextColor(RGB(255, 255, 255));
 	buttonClose.GetRect(rc2);
 	SIZE sizes;
 	gdiBitmap.GetTextExtentPoint32W(L"Vista Preliminar del Horario", sizes);
 	gdiBitmap.SetBkMode(true);
-	gdiBitmap.TextOut(rc2.right + 60, ((titleBarHeight - sizes.cy) / 2) * 1.4, L"Vista Preliminar del Horario");
+	gdiBitmap.TextOut(rc2.right + 60, int(((titleBarHeight - sizes.cy) / 2) * 1.4), L"Vista Preliminar del Horario");
 	gdi.DrawCompatibleBitmap(bitmap, 0, 0);
 	//___________________________________________________ Left Border
 	gdi.FillRect(0, titleBarHeight, leftBorderWidth, windowHeight - bottomBorderHeight, brush);
@@ -464,7 +477,7 @@ void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 	//___________________________________________________ Bottom Border
 	gdi.FillRect(0, windowHeight - bottomBorderHeight, windowWidth, windowHeight, brush);
 	//___________________________________________________ Line Draw
-	float propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	CG::Pen pen(PS_SOLID, 3, RGB(255, 255, 255));
 	gdi.Select(pen);
 	gdi.Line(0, titleBarHeight, int(600 * propX) + rightBorderWidth, titleBarHeight); //Horizontal
@@ -474,7 +487,7 @@ void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 void Windows_HorarioDICIS::Adjust(Sys::Xml &xmlAux, wstring listOld, wstring newElement)
 {
 	vector<wstring> older = Nap::Text::Split(listOld, L',');
-	for (int i = 0; i < older.size(); i++) {
+	for (size_t i = 0; i < older.size(); i++) {
 		Nap::Correct::XML::ChangeChildName(xmlAux, older[i], newElement);
 	}
 }

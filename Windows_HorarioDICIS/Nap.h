@@ -142,7 +142,7 @@ public:
 		static wchar_t m_szCustomFilter[WIN_MAX_FILTER];
 		wstring _workingFolder;
 	};
-	static class Screen {
+	class Screen {
 	public:
 		//Get screen size X, this is adaptative of each screen
 		static int GetScreenSizeX();
@@ -153,7 +153,7 @@ public:
 		//Get half screen size Y, this is adaptative of each screen
 		static int GetHalfScreenSizeY();
 	};
-	static class Text {
+	class Text {
 	public:
 		//Replace only the first character found
 		static bool ReplaceFirst(wstring& input, const wstring& from, const wstring& to);
@@ -190,7 +190,7 @@ public:
 		//This gonna joint a vector<wstring> based in a character, for example c = { L"Hello", L"World"}, AfterJoin = L"Hello World"
 		static wstring Join(vector<wstring> input, wchar_t byWhat);
 	};
-	static class File {
+	class File {
 	public:
 		//Remember use GetLastErrorWindows() to get the error if exist
 		static bool Copy(wstring existingFile, wstring newFile);
@@ -229,7 +229,7 @@ public:
 		//Return only the type of file, example: input = "C:\\Users\\User\\Desktop\\FileName.txt" output = L"txt"
 		static wstring GetType(wstring filename);
 	};
-	static class Time {
+	 class Time {
 	public:
 		//Return the actual time using a format like: L"%d-%m-%y %H:%M:%S" -> 05-12-18  21:59:48 OR L"%a %b %Y %I:%M:%S" -> Fri Oct 2018 09:59:48
 		static wstring GetCurrent(wstring format);
@@ -251,7 +251,7 @@ public:
 	private:
 		static vector<wstring> DayOfMonth(Sys::Time t);
 	};
-	static class Wintempla {
+	class Wintempla {
 	public:
 		//Mouse is over an item
 		static bool MouseIsOver(Win::ListView &lvAux, HWND &hWnd);
@@ -261,7 +261,7 @@ public:
 		static bool DropDownCopyValues(vector<wstring> &from, Win::DropDownList &to);
 		//Return all items from a dropDownList into a vector<wstring>
 		static vector<wstring> DropDownGetItems(Win::DropDownList &ddList);
-		static class ProgressBar {
+		class ProgressBar {
 		public:
 			//Open a large file, and display progress bar, you need to set the percentage. For example, 100% is normal, but if you have
 			//more than one process set 50%, or 3 process that represent 100% choose 33%
@@ -271,12 +271,12 @@ public:
 			//Set position of progress bar with update integrated
 			static void SetPosition(int position, Win::ProgressBar &pbAux);
 		};
-		static class Image {
+		class Image {
 		public:
 			//Call a Open File Dialog, and save it in the image element
 			static bool Open(HWND &hWnd, Win::Image &aux);
 		};
-		static class ListView {
+		class ListView {
 		public:
 			//Fill out one value using the current text in the dropDownList
 			static bool Fill(int nRow, int nColumn, Win::DropDownList &ddItem, Win::ListView &lvItems);
@@ -297,7 +297,7 @@ public:
 			//Fill out an amount money give it in double in the listView, this add $ at begging
 			static bool FillMoney(int nRow, int nColumn, double value, Win::ListView &lvItems);
 		};
-		static class SQL {
+		class SQL {
 		public:
 			//Return an integer with the query request, example: (conn, hWnd, L"userx_id", L"userx", L"email = r.gomez@hotmail.com") -> 25
 			static int Query(Sql::SqlConnection &conn, wstring select, wstring from, wstring wheres);
@@ -348,7 +348,7 @@ public:
 		private:
 			int GetLastItemID();
 		};
-		static class ShowBalloonTip {
+		class ShowBalloonTip {
 		public:
 			//Verify if a textbox is empty and show an error if it doesn't
 			static bool Empty(Win::Textbox &tbxAux, wstring title);
@@ -383,22 +383,22 @@ public:
 		wstring xsl;
 		void GenerateXSLT();
 	};
-	static class Correct {
+	class Correct {
 	public:
 		//===================================
 		//		FUNCIONES PUBLICAS VERIFY
 		//===================================
 		static wstring Double(wstring input, int NAP_CV_DOUBLE);
 		static wstring XMLtoHTML(wstring html);
-		static class XML {
+		class XML {
 		public:
 			static bool DeleteChild(Sys::Xml &xmlObjext, wstring childName, wstring fatherName);
 			static bool ChangeChildName(Sys::Xml &xmlObjext, wstring oldChild, wstring newChild);
 		};
 	};
-	static class Verify {
+	class Verify {
 	public:
-		static class RegularExpression {
+		class RegularExpression {
 		public:
 			//===================================
 			//		FUNCIONES REGULAR EXPRESSION
@@ -412,7 +412,7 @@ public:
 		static int Double(wstring input);
 		static bool IsHTML(wstring text);
 	};
-	static class Convert {
+	class Convert {
 	public:
 		//===================================
 		//		FUNCIONES PUBLICAS CONVERT
@@ -432,7 +432,7 @@ public:
 		static const char* ToChar(wstring input);
 
 	};
-	static class Encrypting {
+	class Encrypting {
 	public:
 		//===================================
 		//		FUNCIONES PUBLICAS ENCRYPTING
@@ -450,7 +450,7 @@ public:
 		static void Encode64(const char* input, string& output, char *table);
 		static void Encode64(const wstring &input, wstring &output, wchar_t *table, int &length);
 	};
-	static class Decrypting {
+	class Decrypting {
 	public:
 		//===================================
 		//		FUNCIONES PUBLICAS DECRYPTING
@@ -500,7 +500,7 @@ public:
 		wkhtmltopdf_converter *convertPDF;
 		string html;
 	};
-	static class Design {
+	class Design {
 	public:
 		//===================================
 		//		FUNCIONES PUBLICAS DESIGN
@@ -586,7 +586,7 @@ public:
 			double constantPositionXLeft;
 			double constantPositionXRight;
 		};
-		static class Element {
+		class Element {
 		public:
 			//===================================
 			//		FUNCIONES PUBLICAS Activate
