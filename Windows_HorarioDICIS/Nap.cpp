@@ -331,6 +331,13 @@ void Nap::ExcelFile::CleanningData(vector<vector<wstring>> &data) {
 //					FUNCIONES PUBLICAS
 //-------------------------------------------------------------
 
+bool Nap::Email::SMTP::SendLocalFileGoogle(wstring file, string extensionFile, string subject) {
+	this->file = file;
+	this->subject = subject;
+	this->extensionFile = extensionFile;
+	return this->SendEmail(NAP_EMAIL_LOCALFILE);
+}
+
 bool Nap::Email::SMTP::SendLocalFileGoogle(wstring file, string extensionFile) {
 	this->file = file;
 	this->extensionFile = extensionFile;
@@ -522,7 +529,7 @@ string Nap::Email::SMTP::GetBody(string &emailFrom, string &emailTo, int &typeEm
 	//___________________ SendTo
 	body += "To: ""SaveUser"" <" + emailTo + ">\r\n";
 	//___________________ SendSubject
-	string subject = Nap::Time::GetCurrent("%d-%m-%Y %H%M%S");
+	if(subject.empty()) subject = Nap::Time::GetCurrent("%d-%m-%Y %H%M%S");
 	body += "Subject: " + subject + "\r\n";
 	//___________________ SendTimeHeader
 	body += "Date: " + Nap::Time::GetCurrent("%a, %d %b %Y %T") + " -0600\r\n";
@@ -982,6 +989,12 @@ vector<wstring> Nap::Text::Split(wstring input, wchar_t byWhat) {
 //-------------------------------------------------------------
 //					FUNCIONES PUBLICAS
 //-------------------------------------------------------------
+
+bool Nap::File::Exists(wstring file)
+{
+	wifstream exists(file.c_str());
+	return exists.good();
+}
 
 wstring Nap::File::GetType(wstring filename)
 {

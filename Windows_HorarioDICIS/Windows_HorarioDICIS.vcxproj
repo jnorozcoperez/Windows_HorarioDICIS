@@ -132,6 +132,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,6 +158,7 @@
     <ClInclude Include="BtLvExcel.h" />
     <ClInclude Include="BtOpen.h" />
     <ClInclude Include="BtUpload.h" />
+    <ClInclude Include="CarreraDlg.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Excel.h" />
     <ClInclude Include="Nap.h" />
@@ -175,6 +177,7 @@
     <ClCompile Include="BtLvExcel.cpp" />
     <ClCompile Include="BtOpen.cpp" />
     <ClCompile Include="BtUpload.cpp" />
+    <ClCompile Include="CarreraDlg.cpp" />
     <ClCompile Include="Excel.cpp" />
     <ClCompile Include="Nap.cpp" />
     <ClCompile Include="stdafx.cpp">

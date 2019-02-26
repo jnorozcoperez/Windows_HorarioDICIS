@@ -43,3 +43,13 @@ constexpr auto NAP_MOUSE_IS_NOTOVER = 6; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_TEXT = 1; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_FILE = 2; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_LOCALFILE = 3; //Cuando el cursor no está sobre
+const map<wstring, wstring> CARRERA = {
+	{L"Artes Digitales", L"ARTES"},
+	{L"Enseñanza del Inglés", L"INGLES"},
+	{L"Gestión Empresarial", L"GESTION"},
+	{L"Ingeniería en Comunicaciones y Electrónica", L"ELECTRONICA"},
+	{L"Ingeniería en Eléctrica", L"ELECTRICA"},
+	{L"Ingeniería Mecánica", L"MECANICA"},
+	{L"Ingeniería Mecatrónica", L"MECATRONICA"},
+	{L"Ingeniería en Sistemas Computacionales", L"SISTEMAS"}
+};

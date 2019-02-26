@@ -63,12 +63,14 @@ public:
 			~SMTP() {
 				Disconnect();
 			}
-			//Send email with an attachement file opened in local PC using a google account
+			//Send email with an attachement file open in local PC using a google account
 			bool SendFileGoogle(wstring path);
 			//Send email with only text message usign a google account
 			bool SendEmailGoogle(wstring message);
 			//Send email with an attachement file store in program passing extension example "pdf" using a google account
 			bool SendLocalFileGoogle(wstring file, string extensionFile);
+			//Send email with an attachement file store in program passing extension example "pdf" using a google account
+			bool SendLocalFileGoogle(wstring file, string extensionFile, string subject);
 			//Set a progress bar in case you want to use it, and the percentage that going to advance
 			bool SetProgressBar(Win::ProgressBar &pbActual, int percentageToAdvance);
 		private:
@@ -82,6 +84,7 @@ public:
 			string GetBody(string &emailFrom, string &emailTo, int &typeEmail);
 			Sys::SecuritySupportProvider ssp;
 			Sys::Socket socket;
+			string subject;
 			wstring path;
 			wstring user;
 			wstring password;
@@ -192,6 +195,8 @@ public:
 	};
 	class File {
 	public:
+		//Return true if the file exists, and if not exists return false
+		static bool Exists(wstring file);
 		//Remember use GetLastErrorWindows() to get the error if exist
 		static bool Copy(wstring existingFile, wstring newFile);
 		//Remember use GetLastErrorWindows() to get the error if exist

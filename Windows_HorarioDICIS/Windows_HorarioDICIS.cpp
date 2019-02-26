@@ -17,6 +17,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE , LPTSTR cmdLine, int cmdSh
 
 void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 {
+	if (Nap::File::Exists(Nap::GetCurrentPathWork() + L"\\encryptedpid.dll") == false) {
+		CarreraDlg carreraDlg;
+		if (carreraDlg.BeginDialog(hWnd) != TRUE) {
+			this->Destroy();
+			return;
+		}
+	}
+	carrera = Nap::Decrypting::Base64(Nap::Decrypting::Cesar(Nap::File::Open(Nap::GetCurrentPathWork() + L"\\encryptedpid.dll"), 100));
 	//________________________________________________________ imgLogoUG
 	imgLogoUG.SetBitmap(hInstance, IDB_LOGOUG);
 	this->root = Nap::GetCurrentPathWork();
@@ -25,12 +33,13 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	pbUpload.SetRange(1, 100);
 	pbUpload.SetBackColor(RGB(180, 180, 180));
 	//________________________________________________________ toolbExcel
-	TBBUTTON tbButton[1];
+	TBBUTTON tbButton[2];
 	int iconSizes[] ={16, 20, 24, 32, 40, 48, 64};
 	const int pixelsIconSize = Sys::Metrics::GetBestIconSize(iconSizes, 2, Sys::Convert::CentimetersToScreenPixels(0.42333));
 	const int pixelsButtonSize = pixelsIconSize + Sys::Convert::CentimetersToScreenPixels(0.1);
 	toolbExcel.imageList.Create(pixelsIconSize, pixelsIconSize, 2);
 	toolbExcel.imageList.AddIcon(this->hInstance, IDI_DELETE);
+	toolbExcel.imageList.AddIcon(this->hInstance, IDI_REFRESH);
 	toolbExcel.SendMessage(TB_BUTTONSTRUCTSIZE, (WPARAM)(int)sizeof(TBBUTTON), 0); 
 	toolbExcel.SetImageList(toolbExcel.imageList);
 	//_____________________________________
@@ -40,13 +49,20 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	tbButton[0].fsStyle=BTNS_BUTTON;
 	tbButton[0].dwData=0L; 
 	tbButton[0].iString= (LONG_PTR)L"Borrar";
+	//_____________________________________
+	tbButton[1].iBitmap = MAKELONG(1, 0); //<< IMAGE INDEX
+	tbButton[1].idCommand = IDM_UPDATE;
+	tbButton[1].fsState = TBSTATE_ENABLED; // | TBSTATE_WRAP
+	tbButton[1].fsStyle = BTNS_BUTTON;
+	tbButton[1].dwData = 0L;
+	tbButton[1].iString = (LONG_PTR)L"Actualizar programa";
 	toolbExcel.SetBitmapSize(pixelsIconSize, pixelsIconSize);
 	toolbExcel.SetButtonSize(pixelsButtonSize, pixelsButtonSize);
-	toolbExcel.AddButtons(tbButton, 1);// << EDIT HERE THE NUMBER OF BUTTONS
+	toolbExcel.AddButtons(tbButton, 2);// << EDIT HERE THE NUMBER OF BUTTONS
 	toolbExcel.SendMessage(TB_AUTOSIZE, 0, 0);
 	toolbExcel.SetMaxTextRows(0);// EDIT HERE TO DISPLAY THE BUTTON TEXT
 	toolbExcel.Show(SW_SHOWNORMAL);
-	toolbExcel.ResizeToFit();
+	//toolbExcel.ResizeToFit();
 }
 
 void Windows_HorarioDICIS::OpenExcel()
@@ -132,7 +148,8 @@ void Windows_HorarioDICIS::Publish()
 	Nap::Email::SMTP email(L"sch.dicis@gmail.com", L"10071994JnOp_Chicken");
 	//Indicamos al objeto que use el progress bar y fijamos un porcentaje de la tarea del 50%
 	email.SetProgressBar(pbUpload, 50);
-	if (email.SendLocalFileGoogle(xmlFinal, "xml") == false) {
+	auto iteration = CARRERA.find(carrera);
+	if (email.SendLocalFileGoogle(xmlFinal, "xml", Nap::Convert::ToString(iteration->second) + " " + Nap::Time::GetCurrent("%d-%m-%Y %H%M%S")) == false) {
 		//Mostrar erro de envío
 		this->MessageBox(L"El archivo no se pudo publicar, verifique los datos e intente de nuevo.", L"Error", MB_OK | MB_ICONERROR);
 		//Desaparecer el ProgressBar reiniciándolo para futuros usos
@@ -365,8 +382,8 @@ void Windows_HorarioDICIS::Window_Paint(Win::Event& e)
 
 void Windows_HorarioDICIS::TurnOff()
 {
-	buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZE, IDI_WINDOW_MINIMIZE);
-	buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSE, IDI_WINDOW_CLOSE);
+	buttonMinimize.NcCreate(hInstance, isWindowActive ? IDI_WINDOW_MINIMIZE : IDI_WINDOW_MINIMIZEMO, isWindowActive ? IDI_WINDOW_MINIMIZE : IDI_WINDOW_MINIMIZEMO);
+	buttonClose.NcCreate(hInstance, isWindowActive ? IDI_WINDOW_CLOSE : IDI_WINDOW_CLOSEMO, isWindowActive ? IDI_WINDOW_CLOSE : IDI_WINDOW_CLOSEMO);
 	buttonClose.Redraw(hWnd, regionWindow);
 	buttonMinimize.Redraw(hWnd, regionWindow);
 }
@@ -378,13 +395,13 @@ void Windows_HorarioDICIS::SetMouseCursor(int mouseCursor, int state)
 		this->mouseCursor = mouseCursor;
 		switch (mouseCursor) {
 		case NAP_MOUSE_IN_CLOSE:
-			if (state == NAP_MOUSE_IS_OVER) buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSEMO, IDI_WINDOW_CLOSEMO);
+			if (state == NAP_MOUSE_IS_OVER) buttonClose.NcCreate(hInstance, isWindowActive ? IDI_WINDOW_CLOSEMO : IDI_WINDOW_CLOSE, isWindowActive ? IDI_WINDOW_CLOSEMO : IDI_WINDOW_CLOSE);
 			else if (state == NAP_MOUSE_IS_NOTOVER) buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSE, IDI_WINDOW_CLOSE);
 			else if (state == NAP_MOUSE_IS_CLICK) buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSED, IDI_WINDOW_CLOSED);
 			buttonClose.Redraw(hWnd, regionWindow);
 			break;
 		case NAP_MOUSE_IN_MINIMIZE:
-			if (state == NAP_MOUSE_IS_OVER) buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZEMO, IDI_WINDOW_MINIMIZEMO);
+			if (state == NAP_MOUSE_IS_OVER) buttonMinimize.NcCreate(hInstance, isWindowActive ? IDI_WINDOW_MINIMIZEMO : IDI_WINDOW_MINIMIZE, isWindowActive ? IDI_WINDOW_MINIMIZEMO : IDI_WINDOW_MINIMIZE);
 			else if (state == NAP_MOUSE_IS_NOTOVER) buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZE, IDI_WINDOW_MINIMIZE);
 			else if (state == NAP_MOUSE_IS_CLICK) buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZED, IDI_WINDOW_MINIMIZED);
 			buttonMinimize.Redraw(hWnd, regionWindow);
@@ -468,7 +485,7 @@ void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 	SIZE sizes;
 	gdiBitmap.GetTextExtentPoint32W(L"Vista Preliminar del Horario", sizes);
 	gdiBitmap.SetBkMode(true);
-	gdiBitmap.TextOut(rc2.right + 60, int(((titleBarHeight - sizes.cy) / 2) * 1.4), L"Vista Preliminar del Horario");
+	gdiBitmap.TextOut(rc2.right + 86, int(((titleBarHeight - sizes.cy) / 2) * 1.4), L"Vista Preliminar del Horario"); // + 60 EN X
 	gdi.DrawCompatibleBitmap(bitmap, 0, 0);
 	//___________________________________________________ Left Border
 	gdi.FillRect(0, titleBarHeight, leftBorderWidth, windowHeight - bottomBorderHeight, brush);
@@ -507,4 +524,8 @@ void Windows_HorarioDICIS::Cmd_Delete(Win::Event& e)
 		if (index < 0) break;
 		lvExcel.DeleteItem(index);
 	}
+}
+void Windows_HorarioDICIS::Cmd_Update(Win::Event& e)
+{
+	win_sparkle_check_update_with_ui();
 }

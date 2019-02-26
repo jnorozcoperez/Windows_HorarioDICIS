@@ -3,6 +3,7 @@
 #include "BtOpen.h"
 #include "BtLvExcel.h"
 #include "BtUpload.h"
+#include "CarreraDlg.h"
 constexpr auto WORK_ID = 100;
 constexpr auto TRIGGER_PUBLISH = 1;
 constexpr auto TRIGGER_OPENEXCEL = 2;
@@ -11,6 +12,7 @@ class Windows_HorarioDICIS: public Win::Window, public Mt::IThread
 public:
 	Windows_HorarioDICIS()
 	{
+		//_____________Variables iniciales
 		triggerButton = -1;
 		mouseCursor = 0;
 		isExcel = false;
@@ -18,7 +20,7 @@ public:
 		::SetRectEmpty(&rectOldWindow);
 		::SetRectEmpty(&rectOldClientArea);
 		//______________Funciones de actualización
-		win_sparkle_set_appcast_url("https://yivootr0pfmu5k7zrytncw-on.drv.tw/Server/Update.xml");
+		win_sparkle_set_appcast_url("https://kpl5j0fa0u2xj36stk2eya-on.drv.tw/Server/Update.xml");
 		win_sparkle_set_app_build_version(L"1.0.0.0");
 		win_sparkle_set_app_details(L"HorarioDICIS", L"Horario DICIS", L"1.0.0.0");
 		win_sparkle_set_automatic_check_for_updates(1);
@@ -36,6 +38,7 @@ public:
 	bool isExcel;
 	wstring xmlFinal;
 	int triggerButton;
+	wstring carrera;
 	//____________Publish XML
 	void Publish();
 	//____________Excel File
@@ -86,11 +89,11 @@ protected:
 	{
 		this->Text = L"Sincronizador de Horarios";
 		tbxPath.CreateX(WS_EX_CLIENTEDGE, NULL, WS_CHILD | WS_DISABLED | WS_TABSTOP | WS_VISIBLE | ES_AUTOHSCROLL | ES_LEFT | ES_WINNORMALCASE, 0.93133, 3.85233, 9.18633, 0.55033, hWnd, 1000);
-		imgLogoUG.CreateX(WS_EX_TRANSPARENT, NULL, WS_CHILD | WS_DISABLED | WS_VISIBLE, 0.93133, 0.12700, 9.14400, 2.89983, hWnd, 1001);
-		lbUpload.CreateX(NULL, L"Publicar", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_WINNORMAL, 9.75783, 6.56167, 1.56633, 0.78317, hWnd, 1002);
-		pbUpload.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE, 0.93133, 5.48217, 8.25500, 0.55033, hWnd, 1003);
-		lvExcel.CreateX(NULL, NULL, WS_CHILD | WS_HSCROLL | WS_TABSTOP | WS_VSCROLL | LVS_REPORT, 13.84300, 0.63500, 13.27150, 6.56167, hWnd, 1004);
-		toolbExcel.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE | CCS_NORESIZE | CCS_NOPARENTALIGN | CCS_ADJUSTABLE | CCS_NODIVIDER | TBSTYLE_FLAT | TBSTYLE_TOOLTIPS, 25.97150, 0.00000, 1.14300, 0.61383, hWnd, 1005);
+		imgLogoUG.CreateX(WS_EX_TRANSPARENT, NULL, WS_CHILD | WS_DISABLED | WS_VISIBLE, 0.93133, 0.06350, 9.18633, 2.89983, hWnd, 1001);
+		lbUpload.CreateX(NULL, L"Publicar", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_WINNORMAL, 9.75783, 6.56167, 1.56633, 0.55033, hWnd, 1002);
+		pbUpload.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE, 0.93133, 5.54567, 8.25500, 0.55033, hWnd, 1003);
+		lvExcel.CreateX(NULL, NULL, WS_CHILD | WS_HSCROLL | WS_TABSTOP | WS_VSCROLL | LVS_REPORT, 14.47800, 0.06350, 12.63650, 7.13317, hWnd, 1004);
+		toolbExcel.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE | CCS_NORESIZE | CCS_NOPARENTALIGN | CCS_ADJUSTABLE | CCS_NODIVIDER | CCS_VERT | TBSTYLE_FLAT | TBSTYLE_TOOLTIPS, 13.69483, 0.06350, 0.57150, 0.61383, hWnd, 1005);
 		customControlOpen.CreateX(NULL, NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE, 10.45633, 3.85233, 0.93133, 0.55033, hWnd, 1006);
 		customControlBtUpload.CreateX(NULL, NULL, WS_CHILD | WS_VISIBLE, 9.67317, 5.16467, 1.71450, 1.16417, hWnd, 1007);
 		customControlBtExcel.CreateX(NULL, NULL, WS_CHILD | WS_TABSTOP | WS_VISIBLE, 12.74233, 0.00000, 0.88900, 7.19667, hWnd, 1008);
@@ -124,6 +127,7 @@ protected:
 	void Window_Paint(Win::Event& e);
 	void Window_User(Win::Event& e);
 	void Cmd_Delete(Win::Event& e);
+	void Cmd_Update(Win::Event& e);
 	//_________________________________________________
 	bool EventHandler(Win::Event& e)
 	{
@@ -132,6 +136,7 @@ protected:
 		if (customControlBtUpload.IsEvent(e, WIN_CLICK)) {customControlBtUpload_Click(e); return true;}
 		if (customControlBtExcel.IsEvent(e, WIN_CLICK)) {customControlBtExcel_Click(e); return true;}
 		if (this->IsEvent(e, IDM_DELETE)) {Cmd_Delete(e); return true;}
+		if (this->IsEvent(e, IDM_UPDATE)) {Cmd_Update(e); return true;}
 		return false;
 	}
 };

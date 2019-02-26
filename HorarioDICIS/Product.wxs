@@ -14,7 +14,7 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="!(bind.property.ProductName)">
           <Component Id="HorarioDICIS.exe" DiskId="1" Guid="80F23AB4-EC09-4CCB-94DA-97D7B99E0F8D">
-            <File Id="HorarioDICIS.exe" Name="HorarioDICIS.exe" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe" KeyPath="yes">
+            <File Id="HorarioDICIS.exe" Name="HorarioDICIS.exe" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe" KeyPath="yes" Checksum="yes">
               <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="HorarioDICIS" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
               <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="HorarioDICIS" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
             </File>
@@ -44,7 +44,7 @@
             <File Id="wkhtmltox.dll" Name="wkhtmltox.dll" Source="$(var.SolutionDir)Release\wkhtmltox.dll"/>
           </Component>
           <Component Id="HorarioDICIS.ico" DiskId="1" Guid="E594C4E5-3FF6-4560-9DF2-E8AACB12C1AB" KeyPath="yes">
-            <File Id="HorarioDICIS.ico" Name="HorarioDICISV2.ico" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.ico"/>
+            <File Id="HorarioDICIS.ico" Name="HorarioDICIS.ico" Source="$(var.SolutionDir)Release\Windows_HorarioDICIS.ico"/>
           </Component>
         </Directory>
       </Directory>
@@ -74,7 +74,7 @@
     </Feature>
     <WixVariable Id="WixUIDialogBmp" Value="Background.png"/>
     <WixVariable Id="WixUIBannerBmp" Value="Banner.png"/>
-
+    
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <UI>
       <UIRef Id="WixUI_InstallDir" />
@@ -89,9 +89,10 @@
             Value="WelcomeDlg"
             Order="2">1</Publish>
     </UI>
+    <UIRef Id="WixUI_ErrorProgressText"/>
     <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Gracias por instalar la version $(var.versionProgram) de HorarioDICIS."/>
-
     <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe"/>
     <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)Release\Windows_HorarioDICIS.exe"/>
   </Product>
+  
 </Wix>
