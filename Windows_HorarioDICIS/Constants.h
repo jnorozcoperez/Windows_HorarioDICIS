@@ -43,6 +43,8 @@ constexpr auto NAP_MOUSE_IS_NOTOVER = 6; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_TEXT = 1; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_FILE = 2; //Cuando el cursor no está sobre
 constexpr auto NAP_EMAIL_LOCALFILE = 3; //Cuando el cursor no está sobre
+constexpr auto NAP_SCREEN_X = 1920.0; //Tamaño del ancho de pantalla
+constexpr auto NAP_SCREEN_Y = 1080.0; //Tamaño del alto de pantalla
 const map<wstring, wstring> CARRERA = {
 	{L"Artes Digitales", L"ARTES"},
 	{L"Enseñanza del Inglés", L"INGLES"},

@@ -68,7 +68,7 @@ void BtLvExcel::Window_Paint(Win::Event& e)
 	gdi.Plus.FillRectangle(&brush, -1, -1, this->Width + 1, this->Height + 1);
 	gdi.Plus.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
 	//Draw arrow in the custom control
-	Gdiplus::Pen pen(penC, 5.0);
+	Gdiplus::Pen pen(penC, float(5.0 * Nap::Screen::GetProportionY()));
 	if (isOpen) {
 		gdi.Plus.DrawLine(&pen, float(halfX + (0.17 * this->Width)), float(halfY + (0.04 * this->Height)), float(halfX - (0.17 * this->Width)), halfY - m);
 		gdi.Plus.DrawLine(&pen, float(halfX + (0.17 * this->Width)), float(halfY - (0.04 * this->Height)), float(halfX - (0.17 * this->Width)), halfY + m);

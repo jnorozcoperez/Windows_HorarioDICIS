@@ -155,6 +155,10 @@ public:
 		static int GetHalfScreenSizeX();
 		//Get half screen size Y, this is adaptative of each screen
 		static int GetHalfScreenSizeY();
+		//Get the proportion of width, it is necessary change in Constant.h in case was not 1920
+		static float GetProportionX();
+		//Get the proportion of height, it is necessary change in Constant.h in case was not 1080
+		static float GetProportionY();
 	};
 	class Text {
 	public:

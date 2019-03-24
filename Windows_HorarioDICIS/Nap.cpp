@@ -68,33 +68,32 @@ char* Nap::OpenImage(wstring root, int &lenOutput)
 //-------------------------------------------------------------
 
 bool Nap::ExcelFile::Open(wstring fileName) {
-	Com::Boot boot;
 	Excel::ApplicationX Application;
 	Com::Object Range;
 	vector<vector<wstring>> dataAux;
 	try {
 		Application.CreateInstance(L"Excel.Application", true);
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(10, *pbAux);
-		//Abrir el archivo de excel
+		//Abrir el archivo de excel//
 		Excel::WorkbookX book = Application.WorkbooksX.Open(fileName);
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(15, *pbAux);
 		Excel::WorksheetX WorkSheets = Application.ActiveSheet;
-		//Obtener cuantas filas y columnas están activas
+		//Obtener cuántas filas y columnas están activas//
 		Excel::Range Cells = WorkSheets.get_Cells();
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(20, *pbAux);
 		Excel::Range LastCell = Cells.SpecialCells(Excel::XlCellType::xlCellTypeLastCell);
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(25, *pbAux);
 		long row = LastCell.Row;
 		long cols = LastCell.Column;
-		//Crear el rango del libro
+		//Crear el rango del libro//
 		wstring cell = this->GetCols(cols) + to_wstring(row);
 		_variant_t first_cell = L"A1";
 		_variant_t last_cell = cell.c_str();
-		//Seleccionar las celdas
+		//Seleccionar las celdas//
 		Excel::Range range = WorkSheets.get_Range(first_cell, last_cell);
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(30, *pbAux);
 		range.Select();
-		//Recorrer los valores y guardar en un vector de vectores
+		//Recorrer los valores y guardarlos en un vector de vectores//
 		long length = range.Count;
 		int moduleStep = int(length / 50.0);
 		vector<wstring> aux;
@@ -112,7 +111,7 @@ bool Nap::ExcelFile::Open(wstring fileName) {
 				aux.clear();
 			}
 		}
-		//Cerrar el libro
+		//Cerrar el libro//
 		book.Close();
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(85, *pbAux);
 	}
@@ -120,15 +119,15 @@ bool Nap::ExcelFile::Open(wstring fileName) {
 		Application.Method(L"Quit");
 		return NAP_EXCEL_ERROR_OPEN;
 	}
-	//Limpiar vector para eliminar datos inutiles
+	//Limpiar vector para eliminar datos inútiles//
 	this->CleanningData(dataAux);
 	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(90, *pbAux);
-	//Convertimos a minúscula el texto
+	//Convertir a minúscula el texto//
 	Nap::Text::ToLower(dataAux);
 	if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(95, *pbAux);
-	//Vaciar datos a la variable local
+	//Vaciar datos a la variable local para su posterior lectura//
 	this->data = dataAux;
-	//Se obtiene el horario de los datos en el excel
+	//Obtener los datos del horario y estandarizar//
 	GetHorario(this->data);
 	return NAP_EXCEL_OK;
 }
@@ -182,7 +181,7 @@ bool Nap::ExcelFile::GetHorario(vector<vector<wstring>> &preHorario) {
 	int positionToCut = -1, sizePreHorario = preHorario[0].size();
 	wstring headers[] = { L"clave", L"áreadelauda", L"areadelauda", L"unidaddeaprendizaje", L"horas/sem", L"hrs/sem",
 			L"requisitos", L"grupo", L"lun", L"lunes", L"mar", L"martes", L"mie", L"miércoles", L"mié", L"miercoles",
-			L"jue", L"jueves", L"vie", L"viernes", L"sab", L"sabado", L"sáb", L"sábado", L"aula", L"salón", L"salon", L"profesor" };
+			L"jue", L"jueves", L"vie", L"viernes", L"sab", L"sabado", L"sáb", L"sábado", L"aula", L"salón", L"salon", L"profesor", L"presidente", L"vocal" };
 
 	//Buúqueda de las cabeceras
 	for (int i = 0; i < sizePreHorario; i++) {
@@ -371,38 +370,37 @@ bool Nap::Email::SMTP::SendEmail(int typeEmail) {
 	if (typeEmail == NAP_EMAIL_FILE && this->path.empty()) return false;
 	if (typeEmail == NAP_EMAIL_LOCALFILE && this->file.empty() || this->extensionFile.empty()) return false;
 	try {
-		//Conectar con el servidor de gmail en el puerto 465
+		//Conectar con el servidor de gmail en el puerto 465//
 		if (Connect(L"smtp.gmail.com", 465) == false) {
 			Disconnect();
 			return false;
 		}
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.1 * percentageToAdvance)), *pbAux);
-		//__________________________________________________MAIL FROM
+		//__________________________________________________MAIL FROM//
 		string protocolSMTP = "MAIL FROM: <" + Nap::Convert::ToString(this->user) + ">\r\n";
 		if (this->VerifyProtocol(protocolSMTP, 250, L"EMAIL FROM") == false) return false;
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
-		//____________________________________________________________ SendRCPTTo
+		//____________________________________________________________ SendRCPTTo//
 		protocolSMTP = "RCPT TO: <" + Nap::Convert::ToString(this->user) + ">\r\n";
 		if (this->VerifyProtocol(protocolSMTP, 250, L"RCPT TO") == false) return false;
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
-		//____________________________________________________________ SendDATA
+		//____________________________________________________________ SendDATA//
 		protocolSMTP = "DATA\r\n";
 		if (this->VerifyProtocol(protocolSMTP, 354, L"DATA") == false) return false;
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
-		//____________________________________________________________ SendBody
+		//____________________________________________________________ SendBody//
 		string body = GetBody(Nap::Convert::ToString(this->user), Nap::Convert::ToString(this->user), typeEmail);
-		//____________________________________________________________ SendDATAEnd
+		//____________________________________________________________ SendDATAEnd//
 		body += "\r\n.\r\n";
 		if (this->VerifyProtocol(body, 250, L"DATA CONTENT") == false) return false;
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.2 * percentageToAdvance)), *pbAux);
-		//____________________________________________________________ SendQuit
+		//____________________________________________________________ SendQuit//
 		protocolSMTP = "Quit\r\n";
 		if (this->VerifyProtocol(protocolSMTP, 221, L"QUIT") == false) return false;
 		if (this->isProgressBar) Nap::Wintempla::ProgressBar::SetPosition(int(pbAux->GetPosition() + (0.1 * percentageToAdvance)), *pbAux);
-		//____________________________________________________________ Disconnect
+		//____________________________________________________________ Disconnect//
 		Disconnect();
-	}
-	catch (wstring e) {
+	} catch (wstring e) {
 		Disconnect();
 		return false;
 	}
@@ -411,14 +409,14 @@ bool Nap::Email::SMTP::SendEmail(int typeEmail) {
 
 bool Nap::Email::SMTP::Connect(wchar_t* servername, int port) {
 	const DWORD protocol = SP_PROT_TLS1;
-	//______________________________________________________ Create Credentials
+	//______________________________________________________ Create Credentials//
 	SECURITY_STATUS status;
 	status = this->ssp.CreateCredentials(protocol);
 	if (status != SEC_E_OK) {
 		throw this->ssp.GetErrorDescr(status);
 		return false;
 	}
-	//______________________________________________________ Create socket and connect
+	//______________________________________________________ Create socket and connect//
 	if (socket.Connect(servername, port) == SOCKET_ERROR) {
 		throw this->socket.GetLastErrorDesc();
 		return false;
@@ -821,6 +819,14 @@ int Nap::Screen::GetHalfScreenSizeX() {
 
 int Nap::Screen::GetHalfScreenSizeY() {
 	return int(GetSystemMetrics(SM_CYSCREEN) * 0.5);
+}
+
+float Nap::Screen::GetProportionX() {
+	return Nap::Screen::GetScreenSizeX() / NAP_SCREEN_X;
+}
+
+float Nap::Screen::GetProportionY() {
+	return Nap::Screen::GetScreenSizeY() / NAP_SCREEN_Y;
 }
 
 //=============================================================

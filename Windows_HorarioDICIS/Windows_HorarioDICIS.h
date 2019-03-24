@@ -12,6 +12,9 @@ class Windows_HorarioDICIS: public Win::Window, public Mt::IThread
 public:
 	Windows_HorarioDICIS()
 	{
+		//_____________Proporción
+		propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+		propY = Nap::Screen::GetScreenSizeY() / 1080.0;
 		//_____________Variables iniciales
 		triggerButton = -1;
 		mouseCursor = 0;
@@ -36,9 +39,10 @@ public:
 	}
 	wstring root;
 	bool isExcel;
+	wstring carrera;
 	wstring xmlFinal;
 	int triggerButton;
-	wstring carrera;
+	float propX, propY;
 	//____________Publish XML
 	void Publish();
 	//____________Excel File
@@ -125,6 +129,7 @@ protected:
 	void Window_NcPaint(Win::Event& e);
 	void Window_Open(Win::Event& e);
 	void Window_Paint(Win::Event& e);
+	void Window_Size(Win::Event& e);
 	void Window_User(Win::Event& e);
 	void Cmd_Delete(Win::Event& e);
 	void Cmd_Update(Win::Event& e);

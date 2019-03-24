@@ -6,8 +6,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE , LPTSTR cmdLine, int cmdSh
 	CG::Brush brushBackground;
 	brushBackground.CreateSolid(RGB(48, 58, 60));
 	app.CreateMainWindow(L"Windows_HorarioDICIS", cmdShow, IDI_Windows_HorarioDICIS, IDC_Windows_HorarioDICIS, brushBackground, hInstance);
-	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
-	float propY = float(Nap::Screen::GetScreenSizeY() / 1080.0);
+	float propX = Nap::Screen::GetScreenSizeX() / 1920.0;
+	float propY = Nap::Screen::GetScreenSizeY() / 1080.0;
 	app.SetWidth(int(663 * propX));
 	app.SetHeight(int(388 * propY));
 	app.SetPositionX(int(Nap::Screen::GetHalfScreenSizeX() - (app.Width * 0.5)));
@@ -26,9 +26,16 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	}
 	carrera = Nap::Decrypting::Base64(Nap::Decrypting::Cesar(Nap::File::Open(Nap::GetCurrentPathWork() + L"\\encryptedpid.dll"), 100));
 	//________________________________________________________ imgLogoUG
+	imgLogoUG.SetWidth(int(434 * propX));
+	imgLogoUG.SetHeight(int(137 * propY));
+	imgLogoUG.SetPosition(int(44 * propX), int(3 * propY));
 	imgLogoUG.SetBitmap(hInstance, IDB_LOGOUG);
 	this->root = Nap::GetCurrentPathWork();
 	//________________________________________________________ pbUpload
+	pbUpload.SetWidth(int(390 * propX));
+	pbUpload.SetHeight(int(26 * propY));
+	pbUpload.SetPositionX(int(44 * propX));
+	pbUpload.SetPositionY(int(262 * propY));
 	pbUpload.SetVisible(false);
 	pbUpload.SetRange(1, 100);
 	pbUpload.SetBackColor(RGB(180, 180, 180));
@@ -62,7 +69,29 @@ void Windows_HorarioDICIS::Window_Open(Win::Event& e)
 	toolbExcel.SendMessage(TB_AUTOSIZE, 0, 0);
 	toolbExcel.SetMaxTextRows(0);// EDIT HERE TO DISPLAY THE BUTTON TEXT
 	toolbExcel.Show(SW_SHOWNORMAL);
-	//toolbExcel.ResizeToFit();
+	//_____________________________________ tbxPath
+	tbxPath.SetWidth(int(434 * propX));
+	tbxPath.SetHeight(int(26 * propY));
+	tbxPath.SetPosition(int(44 * propX), int(182 * propY));
+	//_____________________________________ customControlOpen
+	customControlOpen.SetWidth(int(44 * propX));
+	customControlOpen.SetHeight(int(26 * propY));
+	customControlOpen.SetPosition(int(494 * propX), int(182 * propY));
+	//_____________________________________ customControlUpload
+	customControlBtUpload.SetWidth(int(81 * propX));
+	customControlBtUpload.SetHeight(int(55 * propY));
+	customControlBtUpload.SetPosition(int(457 * propX), int(244 * propY));
+	//_____________________________________ lbUpload
+	Win::Gdi::Font newFont;
+	newFont.CreateX(L"Arial", 0.423333 * propY, false, false, false, false);
+	lbUpload.SetFont(newFont);
+	lbUpload.SetPosition(int(customControlBtUpload.GetPositionX() + customControlBtUpload.GetWidth() * 0.5 - lbUpload.GetWidth() * 0.5 + 4 * propX), int(310 * propY));
+	//_____________________________________ toolbExcel
+	toolbExcel.SetPosition(int(647 * propX), int(3 * propY));
+	//_____________________________________ lvExcel
+	lvExcel.SetWidth(int(597 * propX));
+	lvExcel.SetHeight(int(337 * propY));
+	lvExcel.SetPosition(int(684 * propX), int(3 * propY));
 }
 
 void Windows_HorarioDICIS::OpenExcel()
@@ -106,23 +135,23 @@ void Windows_HorarioDICIS::OpenExcel()
 
 void Windows_HorarioDICIS::Publish()
 {
-	//Verificamos si hay un archivo de excel abierto
+	//Verificar si hay un excel cargado en el programa//
 	if (!isExcel) {
 		this->MessageBox(L"No se ha abierto un archivo de Excel", L"Error", MB_OK | MB_ICONERROR);
 		return;
 	}
-	//________________________ Generación del archivo XML y posterior almacenamiento local
-	//Cursor en modo de espera
+	//________________________ Generar archivo XML y posterior almacenamiento local//
+	//Cursor en modo de espera//
 	Win::HourGlassCursor hgc(true);
-	//Se hace visible la progressBar
+	//Hacer visible la progressBar//
 	pbUpload.SetVisible(true);
-	//Creación de un objeto de la clase Xml
+	//Crear un objeto de la clase Xml//
 	Sys::Xml xmlReporteGastos;
-	//Obtener el XML en base a la listView
+	//Obtener el XML en base a la listView//
 	lvExcel.ExportToXml(true, xmlReporteGastos);
-	//Avanzamos al 10% en la ProgressBar
+	//Avanzar al 10% en la ProgressBar//
 	Nap::Wintempla::ProgressBar::SetPosition(20, pbUpload);
-	//Cambiar todos los posibles nombres de las ramas para estandarizar los datos
+	//Cambiar todos los posibles nombres de las ramas para estandarizar los datos//
 	Nap::Correct::XML::DeleteChild(xmlReporteGastos, L"id", L"item");
 	Adjust(xmlReporteGastos, L"Area De La Uda,Área De La Uda", L"AreaDeLaUda");
 	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Unidad De Aprendizaje", L"UnidadDeAprendizaje");
@@ -134,36 +163,36 @@ void Windows_HorarioDICIS::Publish()
 	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Martes", L"Mar");
 	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Jueves", L"Jue");
 	Nap::Correct::XML::ChangeChildName(xmlReporteGastos, L"Viernes", L"Vie");
-	//Avanzamos al 20% en la ProgressBar
+	//Avanzar al 20% en la ProgressBar//
 	Nap::Wintempla::ProgressBar::SetPosition(30, pbUpload);
-	//Obtener el texto del XML 
+	//Obtener el texto del XML//
 	xmlReporteGastos.GetXmlText(xmlFinal);
-	//Quitar todos los saltos de línea y tabuladores no admitidos en la app de Android
+	//Quitar todos los saltos de línea y tabuladores no admitidos en la app de Android//
 	Nap::Text::ReplaceAll(xmlFinal, L"\t", L"");
 	Nap::Text::ReplaceAll(xmlFinal, L"\r", L"");
 	Nap::Text::ReplaceAll(xmlFinal, L"\n", L"");
-	//Avanzamos al 40% en la ProgressBar
+	//Avanzamos al 40% en la ProgressBar//
 	Nap::Wintempla::ProgressBar::SetPosition(40, pbUpload);
-	//Creación de un objeto de la clase Email::SMTP diseñada para enviar un correo
+	//Crear un objeto de la clase Email::SMTP diseñada para enviar un correo//
 	Nap::Email::SMTP email(L"sch.dicis@gmail.com", L"10071994JnOp_Chicken");
-	//Indicamos al objeto que use el progress bar y fijamos un porcentaje de la tarea del 50%
+	//Indicar el objeto que use el progress bar y fijar un porcentaje del 50%//
 	email.SetProgressBar(pbUpload, 50);
 	auto iteration = CARRERA.find(carrera);
 	if (email.SendLocalFileGoogle(xmlFinal, "xml", Nap::Convert::ToString(iteration->second) + " " + Nap::Time::GetCurrent("%d-%m-%Y %H%M%S")) == false) {
-		//Mostrar erro de envío
+		//Mostrar erro de envío//
 		this->MessageBox(L"El archivo no se pudo publicar, verifique los datos e intente de nuevo.", L"Error", MB_OK | MB_ICONERROR);
-		//Desaparecer el ProgressBar reiniciándolo para futuros usos
+		//Desaparecer el ProgressBar reiniciándolo para futuros usos//
 		Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
-		//Hacer invisible el ProgressBar
+		//Hacer invisible el ProgressBar//
 		pbUpload.SetVisible(false);
 		return;
 	}
 	Nap::Wintempla::ProgressBar::SetPosition(100, pbUpload);
-	//Mostrar alerta de archivo publicado
+	//Mostrar alerta de archivo publicado//
 	this->MessageBox(L"El archivo se ha publicado", L"Terminado", MB_OK | MB_ICONINFORMATION);
-	//Desaparecer el ProgressBar reiniciándolo para futuros usos
+	//Desaparecer el ProgressBar reiniciándolo para futuros usos//
 	Nap::Wintempla::ProgressBar::SetPosition(0, pbUpload);
-	//Hacer invisible el ProgressBar
+	//Hacer invisible el ProgressBar//
 	pbUpload.SetVisible(false);
 }
 
@@ -186,7 +215,6 @@ void Windows_HorarioDICIS::customControlBtUpload_Click(Win::Event& e)
 
 void Windows_HorarioDICIS::customControlBtExcel_Click(Win::Event& e)
 {
-	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	if (isExcel) {
 		if (customControlBtExcel.ChangeDoor()) {
 			this->SetWidth(int(1300 * propX));
@@ -259,7 +287,6 @@ void Windows_HorarioDICIS::Window_NcActivate(Win::Event& e)
 
 void Windows_HorarioDICIS::Window_NcCalcSize(Win::Event& e)
 {
-	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	if (e.wParam == TRUE) {
 		NCCALCSIZE_PARAMS* calcSize_Params = (NCCALCSIZE_PARAMS*)e.lParam;
 		rectWindow = calcSize_Params->rgrc[0]; // the proposed new window coordinates.
@@ -271,8 +298,8 @@ void Windows_HorarioDICIS::Window_NcCalcSize(Win::Event& e)
 		//____________________________________________ Close Button
 		const int titleBarHeight = rectOldClientArea.top - rectOldWindow.top;
 		const int windowWidth = rectWindow.right - rectWindow.left;
-		const int buttonWidth = 37;
-		const int buttonHeight = 37;
+		const int buttonWidth = int(37 * propX);
+		const int buttonHeight = int(37 * propY);
 		const int padding = (titleBarHeight > buttonHeight) ? (titleBarHeight - buttonHeight) / 2 : 0;
 		RECT rect;
 		rect.right = int(598 * propX) + (rectOldClientArea.left - rectOldWindow.left);//int((windowWidth - buttonWidth) * 0.978)
@@ -281,7 +308,7 @@ void Windows_HorarioDICIS::Window_NcCalcSize(Win::Event& e)
 		rect.bottom = rect.top + buttonHeight;
 		buttonClose.NcCalcSize(rect);
 		//____________________________________________ Minimize Button
-		::OffsetRect(&rect, -(buttonWidth + 0 * int(propX)), 0);
+		::OffsetRect(&rect, -(buttonWidth), 0);
 		buttonMinimize.NcCalcSize(rect);
 		//____________________________________________ Window Icon
 		rect.left = padding;
@@ -362,7 +389,6 @@ void Windows_HorarioDICIS::Window_NcPaint(Win::Event& e)
 
 void Windows_HorarioDICIS::Window_Paint(Win::Event& e)
 {
-	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
 	CG::Gdi gdi(hWnd, true, false);
 	CG::Brush brushSolid;
 	gdi.SelectNullPen();
@@ -372,7 +398,7 @@ void Windows_HorarioDICIS::Window_Paint(Win::Event& e)
 	imgLogoUG.SetBitmap(hInstance, isWindowActive ? IDB_LOGOUG : IDB_LOGOUGMO);
 	imgLogoUG.Repaint(NULL, false);
 	gdi.SelectNullBrush();
-	CG::Pen pen(PS_SOLID, 4, RGB(255, 255, 255));
+	CG::Pen pen(PS_SOLID, int(4 * propX), RGB(255, 255, 255));
 	gdi.Select(pen);
 	int clientAreaWidth = GetClientWidth();
 	int clientAreaHeight = GetClientHeight();
@@ -431,6 +457,7 @@ void Windows_HorarioDICIS::RepaintNonClientArea()
 
 void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 {
+	//Calcular la posición inicial de los elementos//
 	const int titleBarHeight = rectOldClientArea.top - rectOldWindow.top;
 	const int bottomBorderHeight = rectOldWindow.bottom - rectOldClientArea.bottom;
 	const int leftBorderWidth = rectOldClientArea.left - rectOldWindow.left;
@@ -438,67 +465,72 @@ void Windows_HorarioDICIS::DrawNonClientArea(CG::Gdi& gdi)
 	const int windowWidth = rectWindow.right - rectWindow.left;
 	const int windowHeight = rectWindow.bottom - rectWindow.top;
 	this->Repaint(NULL, false);
+	//Crear la brocha para pintar el fondo//
 	CG::Brush brush(isWindowActive ? RGB(48, 58, 60) : RGB(87, 97, 99));
 	if (isWindowActive) {
+		//Crear los botones en base a una imagen//
 		buttonWindowIcon.NcCreate(hInstance, IDI_TITLEBAR, IDI_TITLEBAR);
 		buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZE, IDI_WINDOW_MINIMIZE);
 		buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSE, IDI_WINDOW_CLOSE);
 	}
 	else {
+		//Crear los botones en base a una imagen//
 		buttonWindowIcon.NcCreate(hInstance, IDI_TITLEBARMO, IDI_TITLEBARMO);
 		buttonMinimize.NcCreate(hInstance, IDI_WINDOW_MINIMIZEMO, IDI_WINDOW_MINIMIZEMO);
 		buttonClose.NcCreate(hInstance, IDI_WINDOW_CLOSEMO, IDI_WINDOW_CLOSEMO);
 	}
-	//___________________________________________________ Title Bar
+	//___________________________________________________ Title Bar//
 	CG::DDBitmap bitmap;
 	RECT rcPaint = { 0, 0, windowWidth, titleBarHeight };
 	bitmap.CreateCompatible(hWnd, windowWidth, titleBarHeight);
 	CG::Gdi gdiBitmap(bitmap, rcPaint, true);
 	gdiBitmap.FillRect(0, 0, rectWindow.right - rectWindow.left, titleBarHeight, brush);
-	//___________________________________________________ Buttons
+	//___________________________________________________ Buttons//
 	buttonWindowIcon.NcPaint(gdiBitmap);
 	buttonMinimize.NcPaint(gdiBitmap);
 	buttonClose.NcPaint(gdiBitmap);
-	//___________________________________________________ Text
+	//___________________________________________________ Text//
 	wchar_t text[64];
 	const int len = ::GetWindowText(hWnd, text, 64);
 	if (len > 0)
 	{
 		RECT rc;
 		CG::Font font;
-		font.Create(L"sans-serif", int(titleBarHeight * 0.68), false, false, 0);
+		font.Create(L"sans-serif", int(titleBarHeight * 0.68 * propY), false, false, 0);
 		gdiBitmap.Select(font);
 		gdiBitmap.SetTextColor(RGB(255, 255, 255));
 		buttonWindowIcon.GetRect(rc);
 		SIZE size;
 		gdiBitmap.GetTextExtentPoint32W(text, size);
 		gdiBitmap.SetBkMode(true);
-		gdiBitmap.TextOut(rc.right + 10, int(((titleBarHeight - size.cy) / 2) * 1.4), text);
+		gdiBitmap.TextOut(rc.right + int(10 * propX), int(((titleBarHeight - size.cy) / 2) * 1.4 * propY), text);
 	}
-	//___________________________________________________ Text
+	//___________________________________________________ Text Titile//
 	RECT rc2;
 	CG::Font fonts;
-	fonts.Create(L"sans-serif", int(titleBarHeight * 0.68), false, false, 0);
+	fonts.Create(L"sans-serif", int(titleBarHeight * 0.68 * propY), false, false, 0);
 	gdiBitmap.Select(fonts);
 	gdiBitmap.SetTextColor(RGB(255, 255, 255));
 	buttonClose.GetRect(rc2);
 	SIZE sizes;
 	gdiBitmap.GetTextExtentPoint32W(L"Vista Preliminar del Horario", sizes);
 	gdiBitmap.SetBkMode(true);
-	gdiBitmap.TextOut(rc2.right + 86, int(((titleBarHeight - sizes.cy) / 2) * 1.4), L"Vista Preliminar del Horario"); // + 60 EN X
+	gdiBitmap.TextOut(rc2.right + int(86 * propX), int(((titleBarHeight - sizes.cy) / 2) * 1.4 * propY), L"Vista Preliminar del Horario");
 	gdi.DrawCompatibleBitmap(bitmap, 0, 0);
-	//___________________________________________________ Left Border
+	//___________________________________________________ Left Border//
 	gdi.FillRect(0, titleBarHeight, leftBorderWidth, windowHeight - bottomBorderHeight, brush);
-	//___________________________________________________ Right Border
+	//___________________________________________________ Right Border//
 	gdi.FillRect(windowWidth - rightBorderWidth, titleBarHeight, windowWidth, windowHeight - bottomBorderHeight, brush);
-	//___________________________________________________ Bottom Border
+	//___________________________________________________ Bottom Border//
 	gdi.FillRect(0, windowHeight - bottomBorderHeight, windowWidth, windowHeight, brush);
-	//___________________________________________________ Line Draw
-	float propX = float(Nap::Screen::GetScreenSizeX() / 1920.0);
-	CG::Pen pen(PS_SOLID, 3, RGB(255, 255, 255));
+	//___________________________________________________ Line Draw//
+	//Propoción para ajustar//
+	CG::Pen pen(PS_SOLID, int(3 * propX), RGB(255, 255, 255));
 	gdi.Select(pen);
-	gdi.Line(0, titleBarHeight, int(600 * propX) + rightBorderWidth, titleBarHeight); //Horizontal
-	gdi.Line(int(600 * propX) + rightBorderWidth, 0, int(600 * propX) + rightBorderWidth, windowWidth); //Vertical
+	//Horizontal//
+	gdi.Line(0, titleBarHeight, int(600 * propX) + rightBorderWidth, titleBarHeight);
+	//Vertical//
+	gdi.Line(int(600 * propX) + rightBorderWidth, 0, int(600 * propX) + rightBorderWidth, windowWidth);
 }
 
 void Windows_HorarioDICIS::Adjust(Sys::Xml &xmlAux, wstring listOld, wstring newElement)
@@ -529,3 +561,12 @@ void Windows_HorarioDICIS::Cmd_Update(Win::Event& e)
 {
 	win_sparkle_check_update_with_ui();
 }
+void Windows_HorarioDICIS::Window_Size(Win::Event& e)
+{
+	Win::Window::Window_Size(e);
+	//_____________________________________ customControlExcel
+	customControlBtExcel.SetWidth(int(42 * propX));
+	customControlBtExcel.SetPosition(int(602 * propX), 0);
+	customControlBtExcel.SetHeight(int(340 * propY));
+}
+
